@@ -1,0 +1,42 @@
+name: AuraTech Agency CI Pipeline
+
+# 1. تحديد الأحداث التي تطلق الـ Pipeline (عند الـ Push أو الـ Pull Request لفرع main)
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    # تشغيل الاختبارات على أحدث سيرفر Ubuntu توفره GitHub
+    runs-on: ubuntu-latest
+
+    services:
+      # تشغيل حاوية MySQL مؤقتة للاختبار داخل السيرفر الوهمي
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_DATABASE: laptop_agency_db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    # الخطوة الأولى: سحب الكود من مستودع الـ GitHub الخاص بكِ
+    - name: Checkout Repository Code
+      uses: actions/checkout@v3
+
+    # الخطوة الثانية: التأكد من سلامة ملفات الـ PHP وإصدارها
+    - name: Setup PHP Environment Context
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mysqli
+
+    # الخطوة الثالثة: اختبار بناء وتشغيل حاويات الدوكر للتأكد من عدم وجود أخطاء في الـ Dockerfile
+    - name: Validate Docker Build Configurations
+      run: |
+        docker build -t auratech-web-test .
+        docker compose config
