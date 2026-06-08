@@ -1,15 +1,18 @@
 <?php
-// Database configuration for Laptop Agency Platform
-define('DB_SERVER', 'localhost');
-define('DB_USERNAME', 'root');
-define('DB_PASSWORD', '');
-define('DB_NAME', 'laptop_agency_db');
+// إعدادات الاتصال بقاعدة البيانات المهيأة لبيئة حاويات الدوكر (Docker Containers)
+$db_host = 'db'; // اسم الحاوية الخاصة بقاعدة البيانات في Docker
+$db_user = 'root';
+$db_pass = 'root_password';
+$db_name = 'laptop_agency_db';
 
-/* Attempt to connect to MySQL database */
-$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+// إنشاء الاتصال باستخدام مصفوفة mysqli
+$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
 
-// Check connection
-if($conn->connect_error){
-    die("ERROR: Could not connect. " . $conn->connect_error);
+// التحقق من نجاح الاتصال لمنع انهيار النظام الأساسي
+if ($conn->connect_error) {
+    die("Critical Error: Database Connection Failed Context -> " . $conn->connect_error);
 }
+
+// توحيد ترميز البيانات إلى UTF-8 لدعم اللغات والرموز بشكل صحيح
+$conn->set_charset("utf8mb4");
 ?>
