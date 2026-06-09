@@ -1,12 +1,12 @@
 <?php
 require_once "config.php";
 
-// 1. فحص ما إذا كان المستخدم يطلب تفاصيل منتج معين
+// 1. فحص ما إذا كان المستخدم يطلب تفاصيل منتج معين (Specs)
 $product_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $view_details = false;
 
 if ($product_id > 0) {
-    // جلب تفاصيل المنتج المحدد من قاعدة البيانات
+    // جلب تفاصيل المنتج المحدد بأمان من قاعدة البيانات
     $sql = "SELECT * FROM products WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $product_id);
@@ -19,7 +19,7 @@ if ($product_id > 0) {
     }
 }
 
-// 2. جلب متغيرات الفلاتر في حال عرض القائمة الكاملة
+// 2. جلب متغيرات الفلاتر في حال عرض القائمة الكاملة للمنتجات
 $selected_category = isset($_GET['category']) ? $_GET['category'] : 'All';
 $search_query = isset($_GET['search']) ? $_GET['search'] : '';
 ?>
@@ -112,7 +112,7 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
             border-color: var(--neon-cyan);
             box-shadow: 0 20px 40px rgba(6, 182, 212, 0.2);
         }
-   .product-img-container {
+        .product-img-container {
             background: rgba(11, 15, 25, 0.4);
             border-radius: 10px;
             padding: 20px;
@@ -184,6 +184,14 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
             background: rgba(255, 255, 255, 0.03) !important;
             color: var(--text-light);
         }
+
+        .style-back-link {
+            font-weight: 600;
+            transition: opacity 0.2s ease;
+        }
+        .style-back-link:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -195,8 +203,8 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav ms-auto fs-5 gap-4 align-items-center">
                     <a class="nav-item nav-link" href="index.php">Home</a>
-                    <a class="nav-item nav-link" href="products.php?category=Laptop">Authorized Laptops</a>
-                    <a class="nav-item nav-link" href="products.php?category=Accessory">Official Accessories</a>
+                    <a class="nav-item nav-link <?php echo $selected_category == 'Laptop' ? 'active' : ''; ?>" href="products.php?category=Laptop">Authorized Laptops</a>
+                    <a class="nav-item nav-link <?php echo $selected_category == 'Accessory' ? 'active' : ''; ?>" href="products.php?category=Accessory">Official Accessories</a>
                     <a class="nav-item nav-link" href="about.php">About Us</a>
                     <a class="nav-item nav-link" href="contact.php">Contact Us</a>
                     
@@ -217,9 +225,8 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
                     <i class="bi bi-arrow-left me-2"></i>Back to Authorized Inventory
                 </a>
             </div>
-
-            <div class="details-cyber-card p-5">
-                     <div class="row g-5 align-items-center">
+    <div class="details-cyber-card p-5">
+                <div class="row g-5 align-items-center">
                     <div class="col-md-5 text-center">
                         <div class="p-4 rounded-4" style="background: rgba(11, 15, 25, 0.5); border: 1px solid rgba(255,255,255,0.05);">
                             <img src="assets/images/products/<?php echo !empty($product['image_url']) ? $product['image_url'] : 'default.jpg'; ?>" 
@@ -230,19 +237,19 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
                     
                     <div class="col-md-7">
                         <span class="badge badge-cyan mb-2"><?php echo htmlspecialchars($product['brand']); ?></span>
-                        <span class="badge bg-secondary mb-2"><?php echo htmlspecialchars($product['product_type'] ?? 'Hardware'); ?></span>
+                        <span class="badge bg-secondary mb-2"><?php echo htmlspecialchars($product['product_type']); ?></span>
                         
                         <h1 class="display-5 fw-bold text-white mb-3"><?php echo htmlspecialchars($product['name']); ?></h1>
                         <p class="fs-2 fw-bold mb-4" style="color: var(--neon-cyan);">$<?php echo number_format($product['price'], 2); ?></p>
                         
-                        <h5 class="fw-bold text-white-50 uppercase">Architecture Description</h5>
+                        <h5 class="fw-bold text-white-50 text-uppercase small">Architecture Description</h5>
                         <p class="text-light opacity-75 lead mb-4"><?php echo htmlspecialchars($product['description']); ?></p>
 
-                        <h5 class="fw-bold text-white-50 mb-3">Technical Specifications Matrix</h5>
+                        <h5 class="fw-bold text-white-50 mb-3 small text-uppercase">Technical Specifications Matrix</h5>
                         <table class="table table-bordered spec-table">
                             <tbody>
                                 <tr><th>Brand</th><td><?php echo htmlspecialchars($product['brand']); ?></td></tr>
-                                <tr><th>Asset Pool</th><td><?php echo htmlspecialchars($product['product_type'] ?? 'Systems'); ?> Unit</td></tr>
+                                <tr><th>Asset Pool</th><td><?php echo htmlspecialchars($product['product_type']); ?> Unit</td></tr>
                                 <tr><th>Registry Status</th><td>
                                     <?php echo ($product['stock_quantity'] > 0) ? "<span class='text-success fw-bold'>In Stock ({$product['stock_quantity']} Units Active)</span>" : "<span class='text-danger fw-bold'>Out of Registry Stock</span>"; ?>
                                 </td></tr>
@@ -269,15 +276,15 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
                     </div>
                 </div>
             </div>
-    <?php else: ?>
-            <!-- ==================== 💻 القسم الثاني: عرض الشبكة العرضية مع الفلاتر ==================== -->
+            <?php else: ?>
+            <!-- ==================== 💻 القسم الثاني: عرض الشبكة العرضية مع الفلاتر الجانبية ==================== -->
             <header class="mb-5">
                 <h1 class="display-4 fw-bold text-white mb-1">Hardware Ecosystem Architecture</h1>
                 <p class="text-light opacity-50 fs-5">Browse corporate-grade assets with live database diagnostics.</p>
             </header>
 
             <div class="row g-4">
-                <!-- 🔍 الجانب الأيسر: لوحة الفلاتر -->
+                <!-- 🔍 الجانب الأيسر: لوحة الفلاتر الذكية -->
                 <aside class="col-lg-3">
                     <div class="filter-sidebar">
                         <h4 class="fw-bold mb-4 text-white"><i class="bi bi-sliders2-vertical me-2" style="color: var(--neon-cyan);"></i>Filters Matrix</h4>
@@ -305,23 +312,27 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
                 <main class="col-lg-9">
                     <div class="row g-4">
                         <?php
-                        // بناء استعلام البحث والتصفية الديناميكي لقاعدة البيانات
+                        // بناء استعلام البحث والتصفية الديناميكي لقاعدة البيانات بشكل مرن وصحيح
                         $query = "SELECT * FROM products WHERE 1=1";
-                        if ($selected_category != 'All') {
-                            $query .= " AND (product_type = '" . $conn->real_escape_string($selected_category) . "' OR brand = '" . $conn->real_escape_string($selected_category) . "')";
+                        
+                        if ($selected_category !== 'All') {
+                            $query .= " AND product_type = '" . $conn->real_escape_string($selected_category) . "'";
                         }
+                        
                         if (!empty($search_query)) {
-                            $query .= " AND (name LIKE '%" . $conn->real_escape_string($search_query) . "%' OR description LIKE '%" . $conn->real_escape_string($search_query) . "%')";
+                            $query .= " AND (name LIKE '%" . $conn->real_escape_string($search_query) . "%' OR description LIKE '%" . $conn->real_escape_string($search_query) . "%' OR brand LIKE '%" . $conn->real_escape_string($search_query) . "%')";
                         }
+
+                        $query .= " ORDER BY id DESC";
 
                         $db_result = $conn->query($query);
                         $displayed_count = 0;
 
-                        if ($db_result && $db_result->num_rows > 0 || $db_result->num_rows > 0):
+                        if ($db_result && $db_result->num_rows > 0):
                             while($prod = $db_result->fetch_assoc()):
                                 $displayed_count++;
-                                $prod_img = !empty($prod['image_url']) ? $prod['image_url'] : 'default.jpg';        
-                                ?>
+                                $prod_img = !empty($prod['image_url']) ? $prod['image_url'] : 'default.jpg';
+                        ?>
                         <div class="col-md-6 col-xl-4">
                             <div class="product-cyber-card">
                                 <div>
@@ -331,7 +342,7 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
                                              class="img-fluid product-img-inventory"
                                              onerror="this.src='assets/images/products/default.jpg'">
                                     </div>
-                                    <span class="badge badge-cyan mb-2"><?php echo htmlspecialchars($prod['brand'] ?? 'Asset'); ?></span>
+                                    <span class="badge badge-cyan mb-2"><?php echo htmlspecialchars($prod['brand']); ?></span>
                                     <h5 class="fw-bold text-white mb-2"><?php echo htmlspecialchars($prod['name']); ?></h5>
                                     <p class="text-light opacity-50 small mb-3" style="line-height: 1.5; min-height: 45px;">
                                         <?php echo htmlspecialchars(substr($prod['description'], 0, 80)) . '...'; ?>
@@ -340,7 +351,7 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
                                 
                                 <div class="pt-2 border-top border-secondary border-opacity-25">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="fs-4 fw-bold" style="color: var(--neon-cyan);">$<?php echo number_format($prod['price'], 2); ?></span>
+                                        <span class="fs-4 fw-bold" style="color: var(--neon-cyan); font-family: sans-serif;">$<?php echo number_format($prod['price'], 2); ?></span>
                                     </div>
                                     <div class="d-grid gap-2 d-flex">
                                         <!-- زر عرض المواصفات الذي يعيد تحميل نفس الصفحة ممرراً معرّف الـ ID -->
@@ -381,7 +392,7 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
     <footer class="text-center py-4 mt-5" style="background: rgba(11, 15, 25, 0.8); border-top: 1px solid rgba(6, 182, 212, 0.1);">
         <div class="container"><small class="text-light opacity-50">&copy; 2026 AuraTech Agency. Designed by Reem Osama.</small></div>
     </footer>
-
+    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

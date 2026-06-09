@@ -45,30 +45,31 @@ CREATE TABLE IF NOT EXISTS order_items (
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
--- إضافة البيانات التجريبية للمتجر
-INSERT INTO products (name, brand, product_type, description, price, stock_quantity) VALUES
-('HP ProBook 450 G10', 'HP', 'Laptop', 'Intel Core i7, 16GB RAM, 512GB SSD. Official 1-year warranty.', 850.00, 15),
-('Dell XPS 15 Ultra', 'Dell', 'Laptop', 'Intel Core i9, 32GB RAM, 1TB SSD, NVIDIA RTX 4050.', 1899.00, 5),
-('MacBook Air M3', 'Apple', 'Laptop', 'Apple M3 chip, 8GB Unified Memory, 256GB SSD storage.', 1099.00, 8),
-('Logitech MX Master 3S', 'Logitech', 'Accessory', 'Performance wireless mouse, ergonomic silent design.', 99.00, 30),
-('Dell EcoLoop Pro Backpack', 'Dell', 'Accessory', 'Protective weather-resistant laptop backpack up to 16".', 45.00, 25),
-('HP USB-C G5 Essential Dock', 'HP', 'Accessory', 'Universal docking station with power delivery.', 150.00, 12);
-INSERT INTO products (name, brand, product_type, description, price, stock_quantity, image_url) VALUES
+-- تفريغ الجداول أولاً للتأكد من عدم وجود تضارب عند إعادة التشغيل
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE order_items;
+TRUNCATE TABLE products;
+SET FOREIGN_KEY_CHECKS = 1;
 
--- 💻 قسم اللابتوبات الإضافية (Laptops Portfolio)
-('Apple MacBook Pro 16" (M3 Max)', 'Apple', 'Laptop', 'Apple M3 Max chip with 16‑core CPU and 40‑core GPU, 48GB Unified Memory, 1TB SSD. Liquid Retina XDR display.', 3499.00, 5, 'macbook_pro_16.png'),
+-- إضافة البيانات بالكامل (الـ 6 الأساسية + الـ 14 الإضافية الكثيرة جداً) في استعلام واحد سليم ومصلح من مشكلة علامات التنصيص
+INSERT INTO products (name, brand, product_type, description, price, stock_quantity, image_url) VALUES
+('HP ProBook 450 G10', 'HP', 'Laptop', 'Intel Core i7, 16GB RAM, 512GB SSD. Official 1-year warranty.', 850.00, 15, 'default.jpg'),
+('Dell XPS 15 Ultra', 'Dell', 'Laptop', 'Intel Core i9, 32GB RAM, 1TB SSD, NVIDIA RTX 4050.', 1899.00, 5, 'default.jpg'),
+('MacBook Air M3', 'Apple', 'Laptop', 'Apple M3 chip, 8GB Unified Memory, 256GB SSD storage.', 1099.00, 8, 'default.jpg'),
+('Logitech MX Master 3S', 'Logitech', 'Accessory', 'Performance wireless mouse, ergonomic silent design.', 99.00, 30, 'default.jpg'),
+('Dell EcoLoop Pro Backpack', 'Dell', 'Accessory', 'Protective weather-resistant laptop backpack up to 16.', 45.00, 25, 'default.jpg'),
+('HP USB-C G5 Essential Dock', 'HP', 'Accessory', 'Universal docking station with power delivery.', 150.00, 12, 'default.jpg'),
+('Apple MacBook Pro 16 Inch (M3 Max)', 'Apple', 'Laptop', 'Apple M3 Max chip with 16-core CPU and 40-core GPU, 48GB Unified Memory, 1TB SSD. Liquid Retina XDR display.', 3499.00, 5, 'macbook_pro_16.png'),
 ('ASUS ROG Strix Scar 17', 'ASUS', 'Laptop', 'AMD Ryzen 9 7945HX, 32GB DDR5 RAM, 2TB NVMe SSD, NVIDIA RTX 4090. Ultimate compilation and rendering machine.', 2899.00, 3, 'rog_scar_17.png'),
 ('Lenovo Legion Pro 7i', 'Lenovo', 'Laptop', 'Intel Core i9-13900HX, 32GB RAM, 1TB SSD, RTX 4080 12GB. Optimized thermal grid for prolonged software engineering sessions.', 2199.00, 7, 'legion_pro_7i.png'),
 ('MSI Stealth 16 Studio', 'MSI', 'Laptop', 'Intel Core i7-13700H, 16GB RAM, 1TB SSD, RTX 4070. Sleek aerospace-grade aluminum chassis for mobile developers.', 1749.00, 4, 'msi_stealth.png'),
 ('Razer Blade 14 AMD', 'Razer', 'Laptop', 'AMD Ryzen 9 7940HS, 16GB DDR5, 1TB SSD, RTX 4070. Compact form-factor powerhouse with QHD+ 240Hz display.', 2399.00, 6, 'razer_blade_14.png'),
 ('Dell Latitude 7440 Ultrabook', 'Dell', 'Laptop', 'Intel Core i7, 16GB RAM, 512GB NVMe SSD. Enterprise hardware deployment asset with vPro security architecture.', 1250.00, 12, 'latitude_7440.png'),
-
--- ⌨️ قسم الملحقات والإكسسوارات الإضافية (Official Accessories Matrix)
 ('Logitech MX Mechanical Keyboard', 'Logitech', 'Accessory', 'Wireless tactile mechanical keyboard with smart illumination, optimized for cross-platform system navigation.', 169.00, 15, 'mx_mechanical.png'),
 ('Sony WH-1000XM5 ANC', 'Sony', 'Accessory', 'Wireless Noise Canceling Headphones. Deep focus acoustic shield for programming environments.', 398.00, 8, 'sony_xm5.png'),
 ('Razer Basilisk V3 Pro', 'Razer', 'Accessory', 'Customizable wireless engineering and gaming mouse with hyper-scroll tilt wheel and chroma underglow.', 159.00, 20, 'basilisk_v3.png'),
-('Dell UltraSharp 32" 4K Monitor', 'Dell', 'Accessory', 'U3223QE USB-C Hub Monitor with IPS Black technology, 2000:1 contrast ratio for precise UI/UX layout design.', 749.00, 5, 'dell_32_4k.png'),
-('Anker Prime 20,000mAh Power Bank', 'Anker', 'Accessory', '200W simultaneous multi-device charging matrix, digital diagnostic status display screen.', 129.00, 25, 'anker_prime.png'),
+('Dell UltraSharp 32 Inch 4K Monitor', 'Dell', 'Accessory', 'U3223QE USB-C Hub Monitor with IPS Black technology, 2000:1 contrast ratio for precise UI/UX layout design.', 749.00, 5, 'dell_32_4k.png'),
+('Anker Prime 20000mAh Power Bank', 'Anker', 'Accessory', '200W simultaneous multi-device charging matrix, digital diagnostic status display screen.', 129.00, 25, 'anker_prime.png'),
 ('Corsair Virtuoso RGB Wireless SE', 'Corsair', 'Accessory', 'High-fidelity spatial audio communication headset with broadcast-grade omnidirectional microphone.', 209.00, 10, 'corsair_virtuoso.png'),
 ('Elgato Stream Deck MK.2', 'Elgato', 'Accessory', '15 customizable LCD macro keys for deployment scripting automation and IDE shortcut configurations.', 149.00, 14, 'stream_deck.png'),
 ('Crucial X10 Pro 2TB Portable SSD', 'Crucial', 'Accessory', 'Sustained read speeds up to 2100MB/s via USB 3.2 Gen 2x2 pipeline. Pocket-sized deployment safe.', 199.00, 18, 'crucial_x10.png');
