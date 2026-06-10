@@ -145,18 +145,17 @@ session_start();
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav ms-auto fs-5 gap-4 align-items-center">
                     <a class="nav-item nav-link active" href="index.php">Home</a>
-                    <a class="nav-item nav-link" href="products.php?category=Laptop">Authorized Laptops</a>
-                    <a class="nav-item nav-link" href="products.php?category=Accessory">Official Accessories</a>
+                    <a class="nav-item nav-link" href="products.php">Inventory</a>
                     <a class="nav-item nav-link" href="about.php">About Us</a>
                     <a class="nav-item nav-link" href="contact.php">Contact Us</a>
                     
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <a class="nav-item nav-link" href="auth.php" title="Manage Portal" style="color: var(--neon-cyan) !important; text-shadow: 0 0 10px rgba(6, 182, 212, 0.6);">
-                            <i class="bi bi-person-badge-fill"></i>
+                            Login
                         </a>
                     <?php else: ?>
                         <a class="nav-item nav-link" href="auth.php" title="Portal Login">
-                            <i class="bi bi-person-badge"></i>
+                            Login
                         </a>
                     <?php endif; ?>
                 </div>
@@ -179,8 +178,8 @@ session_start();
                     </p>
                     
                     <div class="d-flex gap-4 justify-content-center">
-                        <a href="products.php" class="btn btn-cyan btn-lg px-5 py-3 fs-5">Explore  Inventory</a>
-                        <a href="contact.php" class="btn btn-outline-purple btn-lg px-5 py-3 fs-5">Book cunsultation</a>
+                        <a href="products.php" class="btn btn-cyan btn-lg px-5 py-3 fs-5">Explore Inventory</a>
+                        <a href="contact.php" class="btn btn-outline-purple btn-lg px-5 py-3 fs-5">Book consultation</a>
                     </div>
                 </div>
             </div>
@@ -192,7 +191,7 @@ session_start();
             <div class="col-md-12">
                 <h2 class="fw-bold mb-3" style="color: var(--neon-cyan); text-shadow: 0 0 10px rgba(6, 182, 212, 0.3);">Why AuraTech Enterprise Logistics?</h2>
                 <p class="fs-5 text-light opacity-75 mb-0" style="line-height: 1.8;">
-                    We register every hardware serial number directly with official manufacturer diagnostics databases. Whether you are building an engineering simulation rig, setting up a student dev environment, or equipping an entire corporate lab network, our computing assets pass deep pipeline validation parameters before deployment.
+                    We provide original devices with official manufacturer warranties. Whether you are setting up a personal developer environment or equipping an entire corporate computer lab, our hardware is fully certified and tested before delivery.
                 </p>
             </div>
         </div>
