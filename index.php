@@ -1,10 +1,13 @@
+<?php
+// 1. تفعيل الجلسة في أول السطر لقراءة حالة تسجيل الدخول من ملف auth.php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AuraTech Agency - Next-Gen Hardware Infrastructure</title>
-    <!-- text-formatting-toolkit: Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
@@ -51,7 +54,30 @@
             transform: translateY(-1px);
         }
 
-        /* الـ Hero Section مع توسيط الأزرار وتأثيرات الإضاءة */
+        /* تخصيص مظهر الزر والقائمة المنسدلة للمستخدم لتطابق الثيم النيوني */
+        .user-dropdown-btn {
+            color: var(--neon-cyan) !important;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+        }
+        
+        .custom-dropdown-menu {
+            background-color: #0b0f19 !important;
+            border: 1px solid rgba(6, 182, 212, 0.2) !important;
+            border-radius: 4px;
+        }
+
+        .custom-dropdown-menu .dropdown-item {
+            color: #ffffff !important;
+            transition: all 0.2s ease;
+        }
+
+        .custom-dropdown-menu .dropdown-item:hover {
+            background-color: rgba(6, 182, 212, 0.1) !important;
+            color: var(--neon-cyan) !important;
+        }
+
+        /* ال... Hero Section مع توسيط الأزرار وتأثيرات الإضاءة */
         .luxury-hero {
             padding: 120px 0 60px 0;
             text-align: center;
@@ -110,7 +136,8 @@
             border-color: rgba(6, 182, 212, 0.3);
             box-shadow: 0 20px 40px rgba(6, 182, 212, 0.2);
         }
-      /* تنسيق الصور داخل المستطيل الزجاجي */
+        
+        /* تنسيق الصور داخل المستطيل الزجاجي */
         .product-img-home {
             max-height: 120px;
             object-fit: contain;
@@ -133,7 +160,6 @@
 </head>
 <body>
 
-    <!-- القائمة العلوية الشفافة الموحدة -->
     <nav class="navbar navbar-expand-lg custom-navbar">
         <div class="container-fluid px-5">
             <a class="navbar-brand fw-bold fs-3" href="index.php">AuraTech Agency</a>
@@ -141,18 +167,32 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="navbar-nav ms-auto fs-5 gap-4">
+                <div class="navbar-nav ms-auto fs-5 gap-4 align-items-center">
                     <a class="nav-item nav-link active" href="index.php">Home</a>
                     <a class="nav-item nav-link" href="products.php?category=Laptop">Authorized Laptops</a>
                     <a class="nav-item nav-link" href="products.php?category=Accessory">Official Accessories</a>
                     <a class="nav-item nav-link" href="about.php">About Us</a>
                     <a class="nav-item nav-link" href="contact.php">Contact Us</a>
+                    
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <div class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle user-dropdown-btn" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Admin: <?php echo htmlspecialchars($_SESSION['user_name']); ?>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end custom-dropdown-menu" aria-labelledby="authDropdown">
+                                <li><a class="dropdown-item" href="admin_dashboard.php">Control Dashboard</a></li>
+                                <li><hr class="dropdown-divider bg-secondary"></li>
+                                <li><a class="dropdown-item text-danger" href="logout.php">Logout</a></li>
+                            </ul>
+                        </div>
+                    <?php else: ?>
+                        <a href="auth.php" class="btn btn-outline-purple btn-sm px-4 py-2 fs-6" style="border-radius: 20px;">Portal Login</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- واجهة الـ Hero -->
     <header class="luxury-hero">
         <div class="container">
             <div class="row justify-content-center">
@@ -177,7 +217,6 @@
     </header>
 
     <main class="container-fluid my-5 px-5">
-        <!-- مستطيل الميزات الزجاجي الممتد -->
         <div class="row glass-rectangle mb-5 align-items-center mx-1">
             <div class="col-md-12">
                 <h2 class="fw-bold mb-3" style="color: var(--neon-cyan); text-shadow: 0 0 10px rgba(6, 182, 212, 0.3);">Why AuraTech Enterprise Logistics?</h2>
@@ -186,16 +225,14 @@
                 </p>
             </div>
         </div>
-          <!-- عنوان قسم أحدث 3 منتجات -->
+        
         <div class="row my-5 mx-1">
             <div class="col-12">
                 <h3 class="fw-bold border-bottom border-secondary pb-3 text-white" style="letter-spacing: 0.5px;">Featured Hardware Profile</h3>
             </div>
         </div>
 
-        <!-- 👇 عرض المنتجات بالمستطيلات الزجاجية الطويلة مع عرض الصور حركياً -->
         <?php
-        // قمنا بربط أسماء الصور الحقيقية هنا بناءً على عمود image_url في قاعدة بياناتكِ
         $featured_products = [
             ['name' => 'HP ProBook 450 G10', 'desc' => 'Intel Core i7, 16GB RAM, 512GB SSD. Official 1-year warranty.', 'price' => '850.00', 'tag' => 'Laptop', 'img' => 'hp_probook.png'],
             ['name' => 'Dell XPS 15 Ultra', 'desc' => 'Intel Core i9, 32GB RAM, 1TB SSD, NVIDIA RTX 4050.', 'price' => '1,899.00', 'tag' => 'Laptop', 'img' => 'dell_xps.png'],
@@ -205,23 +242,19 @@
         foreach($featured_products as $prod):
         ?>
         <div class="row glass-rectangle mb-4 align-items-center mx-1">
-            <!-- 📷 عمود عرض صورة المنتج داخل المستطيل الطويل -->
             <div class="col-md-2 text-center mb-3 mb-md-0">
                 <img src="assets/images/products/<?php echo $prod['img']; ?>" 
                      alt="<?php echo $prod['name']; ?>" 
                      class="img-fluid product-img-home"
                      onerror="this.src='assets/images/products/default.jpg'"> 
-                     <!-- 💡 في حال لم تكن الصورة موجودة بعد، سيقوم تلقائياً بعرض الصورة الافتراضية حتى لا ينكسر الديزاين -->
             </div>
 
-            <!-- 📝 تفاصيل ومواصفات المنتج -->
             <div class="col-md-7">
                 <span class="badge badge-cyan mb-2"><?php echo $prod['tag']; ?></span>
                 <h4 class="fw-bold mb-2 text-white"><?php echo $prod['name']; ?></h4>
                 <p class="text-light opacity-50 mb-0 fs-5"><?php echo $prod['desc']; ?></p>
             </div>
 
-            <!-- 💰 السعر وزر الانتقال -->
             <div class="col-md-3 text-md-end text-center mt-3 mt-md-0">
                 <h3 class="fw-bold mb-3" style="color: var(--neon-cyan); text-shadow: 0 0 15px rgba(6, 182, 212, 0.4);">$<?php echo $prod['price']; ?></h3>
                 <a href="products.php" class="btn btn-outline-purple btn-sm px-4 py-2">View in Inventory</a>
@@ -234,7 +267,6 @@
         <p class="mb-0 text-light opacity-50">&copy; 2026 AuraTech Agency. Designed by Reem Osama.</p>
     </footer>
 
-    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
