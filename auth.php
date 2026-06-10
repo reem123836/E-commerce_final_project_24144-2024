@@ -74,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AuraTech Agency - Portal Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
         :root {
             --cyber-bg-top: #0b0f19;
@@ -96,7 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             background-attachment: fixed;
         }
 
-        /* Long Rectangle layout integrated with glass-morphism and cyber metrics */
         .auth-bar-layout {
             width: 100%;
             max-width: 900px;
@@ -155,7 +155,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             outline: none;
         }
 
-        /* Luminous submit actions designed explicitly for AuraTech */
         .btn-auratech-submit {
             background: linear-gradient(90deg, var(--neon-cyan), #0891b2);
             color: #0b0f19 !important;
@@ -172,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             box-shadow: 0 0 35px rgba(6, 182, 212, 0.8);
         }
 
-        .toggle-section-link {
+        .toggle-section-link, .home-link {
             color: var(--neon-cyan);
             text-decoration: none;
             cursor: pointer;
@@ -180,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             transition: all 0.3s ease;
         }
 
-        .toggle-section-link:hover {
+        .toggle-section-link:hover, .home-link:hover {
             color: #ffffff;
             text-shadow: 0 0 8px rgba(6, 182, 212, 0.6);
             text-decoration: underline;
@@ -190,7 +189,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             display: none !important;
         }
 
-        /* Cybernetic system status monitors */
         .alert {
             border-radius: 8px;
             background-color: rgba(26, 15, 10, 0.4);
@@ -219,8 +217,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         <div class="alert alert-success text-center mb-4"><?php echo $success; ?></div>
     <?php endif; ?>
 
+    <!-- Login Module -->
     <div id="loginSection">
-        <h3 class="mb-4" style="font-weight: 600; letter-spacing: 0.5px;">Login</h3>
+        <h3 class="mb-4" style="font-weight: 600; letter-spacing: 0.5px;">Sign In</h3>
         <form action="auth.php" method="POST">
             <div class="row g-3">
                 <div class="col-md-6">
@@ -236,18 +235,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                 </div>
             </div>
         </form>
-        <div class="mt-4 text-center">
-            <span class="opacity-50">Need a new identity console?</span> 
-            <span class="toggle-section-link ms-2" onclick="toggleAuthSections()">Create New Account</span>
+        <div class="mt-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <span class="opacity-50">Need a new identity console?</span> 
+                <span class="toggle-section-link ms-2" onclick="toggleAuthSections()">Create New Account</span>
+            </div>
+            <!-- Back to home option -->
+            <a href="index.php" class="home-link"><i class="bi bi-arrow-left me-1"></i> Back to Home</a>
         </div>
     </div>
 
+    <!-- Register Module -->
     <div id="registerSection" class="hidden-section">
         <h3 class="mb-4" style="font-weight: 600; letter-spacing: 0.5px;">Initialize New Identity</h3>
         <form action="auth.php" method="POST">
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label"> Username</label>
+                    <label class="form-label">Username</label>
                     <input type="text" name="username" class="form-control form-control-auratech" required autocomplete="off">
                 </div>
                 <div class="col-md-6">
@@ -259,9 +263,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                 </div>
             </div>
         </form>
-        <div class="mt-4 text-center">
-            <span class="opacity-50">Already provisioned inside the nodes?</span> 
-            <span class="toggle-section-link ms-2" onclick="toggleAuthSections()">Return to Login</span>
+        <div class="mt-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <span class="opacity-50">Already provisioned inside the nodes?</span> 
+                <span class="toggle-section-link ms-2" onclick="toggleAuthSections()">Return to Login</span>
+            </div>
+            <!-- Back to home option -->
+            <a href="index.php" class="home-link"><i class="bi bi-arrow-left me-1"></i> Back to Home</a>
         </div>
     </div>
 </div>
