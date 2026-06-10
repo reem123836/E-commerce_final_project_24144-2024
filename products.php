@@ -315,7 +315,7 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
                         <div class="mb-4">
                             <label class="form-label opacity-75 small fw-bold text-uppercase">Category Focus</label>
                             <div class="d-flex flex-column gap-2 mt-2">
-                                <a href="products.php?category=All" class="btn btn-sm text-start <?php echo $selected_category == 'All' ? 'btn-info text-dark fw-bold' : 'text-light bg-dark bg-opacity-25'; ?>">All Infrastructure</a>
+                                <a href="products.php?category=All" class="btn btn-sm text-start <?php echo $selected_category == 'All' ? 'btn-info text-dark fw-bold' : 'text-light bg-dark bg-opacity-25'; ?>">All Products</a>
                                 <a href="products.php?category=Laptop" class="btn btn-sm text-start <?php echo $selected_category == 'Laptop' ? 'btn-info text-dark fw-bold' : 'text-light bg-dark bg-opacity-25'; ?>">Authorized Laptops</a>
                                 <a href="products.php?category=Accessory" class="btn btn-sm text-start <?php echo $selected_category == 'Accessory' ? 'btn-info text-dark fw-bold' : 'text-light bg-dark bg-opacity-25'; ?>">Official Accessories</a>
                             </div>
