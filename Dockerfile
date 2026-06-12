@@ -6,13 +6,8 @@ RUN apt-get update && apt-get install -y \
     git \
     unzip
 
-# Install PHP extensions (IMPORTANT PART)
-RUN docker-php-ext-install \
-    mysqli \
-    pdo \
-    pdo_mysql \
-    pdo_pgsql \
-    pgsql
+# Install PHP extensions (IMPORTANT)
+RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql pgsql mysqli
 
 # Enable Apache rewrite
 RUN a2enmod rewrite
