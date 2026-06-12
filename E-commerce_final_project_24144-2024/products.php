@@ -18,11 +18,9 @@ $product = null;
 $view_details = false;
 
 if ($product_id > 0) {
-    $sql = "SELECT * FROM products WHERE id = ?";
-    // تعديل هنا: تم تغيير $pdo إلى $conn
-    $stmt = $conn->prepare($sql);
-    $stmt->execute([$product_id]);
-    $product = $stmt->fetch(PDO::FETCH_ASSOC);
+    $sql = "SELECT * FROM products WHERE id = $1";
+    $result = pg_query_params($conn, $sql, [$product_id]);
+    $product = pg_fetch_assoc($result);
 
     if ($product) {
         $view_details = true;
@@ -40,16 +38,18 @@ $search_query = trim($_GET['search'] ?? '');
 ========================= */
 $sql = "SELECT * FROM products WHERE 1=1";
 $params = [];
+$param_index = 1;
 
 /* Category filter */
 if ($selected_category !== 'All') {
-    $sql .= " AND product_type = ?";
+    $sql .= " AND product_type = $" . $param_index;
     $params[] = $selected_category;
+    $param_index++;
 }
 
 /* Search filter */
 if (!empty($search_query)) {
-    $sql .= " AND (name LIKE ? OR description LIKE ? OR brand LIKE ?)";
+    $sql .= " AND (name LIKE $" . $param_index . " OR description LIKE $" . ($param_index + 1) . " OR brand LIKE $" . ($param_index + 2) . ")";
     $search_param = "%" . $search_query . "%";
     $params[] = $search_param;
     $params[] = $search_param;
@@ -60,161 +60,8 @@ if (!empty($search_query)) {
 $sql .= " ORDER BY id DESC";
 
 /* =========================
-   EXECUTE QUERY (PDO FIX)
+   EXECUTE QUERY
 ========================= */
-// تعديل هنا: تم تغيير $pdo إلى $conn
-$stmt = $conn->prepare($sql);
-$stmt->execute($params);
-$db_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt = pg_query_params($conn, $sql, $params);
+$db_result = pg_fetch_all($stmt) ?: [];
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>
-<?php
-echo $view_details
-    ? htmlspecialchars($product['name']) . " | Specs"
-    : "Certified Inventory | AuraTech Agency";
-?>
-</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(180deg, #0b0f19, #1e1b4b);
-    color: white;
-    min-height: 100vh;
-}
-
-.product-cyber-card {
-    background: rgba(255,255,255,0.07);
-    border-radius: 14px;
-    padding: 25px;
-    border: 1px solid rgba(255,255,255,0.15);
-}
-
-.product-img-container {
-    height: 220px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.product-img-inventory {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.badge-cyan {
-    background: rgba(6,182,212,0.1);
-    color: #06b6d4;
-}
-</style>
-</head>
-
-<body>
-
-<nav class="navbar navbar-expand-lg">
-    <div class="container-fluid px-5">
-        <a class="navbar-brand text-white fw-bold" href="products.php">AuraTech</a>
-    </div>
-</nav>
-
-<div class="container-fluid px-5 my-4">
-
-<?php if ($view_details): ?>
-
-    <?php if (!$product): ?>
-        <div class="alert alert-danger">Product not found</div>
-    <?php else: ?>
-
-    <div class="product-cyber-card p-5">
-        <div class="row g-5">
-
-            <div class="col-md-5">
-                <img src="assets/images/products/<?php echo $product['image_url'] ?: 'default.jpg'; ?>" class="img-fluid" alt="Product Image">
-            </div>
-
-            <div class="col-md-7">
-                <h1><?php echo htmlspecialchars($product['name']); ?></h1>
-
-                <p class="fs-3 text-info">
-                    $<?php echo number_format($product['price'], 2); ?>
-                </p>
-
-                <p><?php echo htmlspecialchars($product['description']); ?></p>
-
-                <p><strong>Stock:</strong> <?php echo $product['stock_quantity']; ?></p>
-
-                <form action="cart_action.php" method="POST" class="d-flex gap-2 align-items-center">
-                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                    <input type="number" name="quantity" min="1" class="form-control text-center" style="width: 80px;"
-                           max="<?php echo $product['stock_quantity']; ?>" value="1">
-                    <button class="btn btn-info" <?php echo ($product['stock_quantity'] <= 0) ? 'disabled' : ''; ?>>
-                        Add to Cart
-                    </button>
-                </form>
-            </div>
-
-        </div>
-    </div>
-
-    <?php endif; ?>
-
-<?php else: ?>
-
-<div class="row g-4">
-
-    <?php if (empty($db_result)): ?>
-        <div class="col-12 text-center my-5">
-            <p class="text-muted fs-4">No products found in the database.</p>
-        </div>
-    <?php else: ?>
-        <?php foreach ($db_result as $prod): ?>
-
-        <div class="col-md-4">
-            <div class="product-cyber-card">
-
-                <div class="product-img-container">
-                    <img src="assets/images/products/<?php echo $prod['image_url'] ?: 'default.jpg'; ?>"
-                         class="product-img-inventory" alt="Product Image">
-                </div>
-
-                <span class="badge badge-cyan my-2 d-inline-block">
-                    <?php echo htmlspecialchars($prod['brand']); ?>
-                </span>
-
-                <h5><?php echo htmlspecialchars($prod['name']); ?></h5>
-
-                <p class="text-light opacity-50">
-                    <?php echo substr(htmlspecialchars($prod['description']), 0, 80); ?>...
-                </p>
-
-                <h4 class="text-info">
-                    $<?php echo number_format($prod['price'], 2); ?>
-                </h4>
-
-                <a href="products.php?id=<?php echo $prod['id']; ?>" class="btn btn-outline-light w-100 mt-2">
-                    View Specs
-                </a>
-
-            </div>
-        </div>
-
-        <?php endforeach; ?>
-    <?php endif; ?>
-
-</div>
-
-<?php endif; ?>
-
-</div>
-
-</body>
-</html>
