@@ -1,0 +1,75 @@
+name: AuraTech Agency CI/CD Pipeline
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_DATABASE: laptop_agency_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot_password"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP Environment
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mysqli, pdo, pdo_mysql
+
+      - name: Install dependencies (if any)
+        run: |
+          php -v
+
+      - name: Wait for MySQL to be ready
+        run: |
+          sleep 20
+
+      - name: Run basic PHP syntax check
+        run: |
+          find . -name "*.php" -exec php -l {} \;
+
+      - name: Test DB Connection
+        run: |
+          php -r "
+          \$conn = new mysqli('127.0.0.1', 'root', 'root_password', 'laptop_agency_db');
+          if (\$conn->connect_error) {
+            die('DB Connection Failed');
+          }
+          echo 'DB Connected Successfully';
+          "
+
+      - name: Validate Docker Build
+        run: |
+          docker build -t auratech-web-test .
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Production Server (Webhook Trigger)
+        run: |
+          echo "Starting deployment process..."
+
+          # مثال webhook (Render / VPS / cPanel / Railway / etc.)
+          curl -X POST "https://your-deployment-webhook-url.com/deploy" \
+          -H "Content-Type: application/json" \
+          -d '{"project":"AuraTech","status":"deploy_triggered"}'
+
+          echo "Deployment triggered successfully"

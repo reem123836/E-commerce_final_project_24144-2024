@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # 1. خدمة سيرفر الويب المعتمد لـ AuraTech
+  web:
+    build: .
+    container_name: auratech_web_app
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html/
+    depends_on:
+      - db
+    networks:
+      - auratech_network
+
+  # 2. خدمة قاعدة البيانات المركزية لـ AuraTech (MySQL)
+  db:
+    image: mysql:8.0
+    container_name: auratech_mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: laptop_agency_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      # تشغيل سكريبت الجداول والبيانات تلقائياً عند الإقلاع الأول
+      - ./database.sql:/docker-entrypoint-initdb.d/database.sql
+    networks:
+      - auratech_network
+
+networks:
+  auratech_network:
+    driver: bridge
+
+volumes:
+  db_data:
