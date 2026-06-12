@@ -14,6 +14,10 @@ $dbname = ltrim($url["path"], "/");
 $user = $url["user"];
 $pass = $url["pass"];
 
+/*
+    PostgreSQL PDO connection (CLEAN VERSION)
+*/
+
 try {
     $pdo = new PDO(
         "pgsql:host=$host;port=$port;dbname=$dbname",
@@ -21,11 +25,10 @@ try {
         $pass,
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8" // safe fallback for encoding
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
         ]
     );
+
 } catch (PDOException $e) {
     die("Database Connection Failed: " . $e->getMessage());
 }
