@@ -1,5 +1,4 @@
 <?php
-echo "<pre>"; print_r(PDO::getAvailableDrivers()); echo "</pre>"; die();
 session_start();
 require_once "config.php";
 
