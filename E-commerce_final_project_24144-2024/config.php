@@ -15,8 +15,9 @@ $user = $url["user"];
 $pass = $url["pass"];
 
 try {
+    // تعديل هنا: إضافة sslmode=require لضمان قبول Render للاتصال أونلاين
     $conn = new PDO(
-        "pgsql:host=$host;port=$port;dbname=$dbname",
+        "pgsql:host=$host;port=$port;dbname=$dbname;sslmode=require",
         $user,
         $pass,
         [

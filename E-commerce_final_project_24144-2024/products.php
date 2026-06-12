@@ -19,7 +19,8 @@ $view_details = false;
 
 if ($product_id > 0) {
     $sql = "SELECT * FROM products WHERE id = ?";
-    $stmt = $pdo->prepare($sql);
+    // تعديل هنا: تم تغيير $pdo إلى $conn
+    $stmt = $conn->prepare($sql);
     $stmt->execute([$product_id]);
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -61,7 +62,8 @@ $sql .= " ORDER BY id DESC";
 /* =========================
    EXECUTE QUERY (PDO FIX)
 ========================= */
-$stmt = $pdo->prepare($sql);
+// تعديل هنا: تم تغيير $pdo إلى $conn
+$stmt = $conn->prepare($sql);
 $stmt->execute($params);
 $db_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -83,7 +85,7 @@ echo $view_details
 
 <style>
 body {
-    font-family: Arial;
+    font-family: Arial, sans-serif;
     background: linear-gradient(180deg, #0b0f19, #1e1b4b);
     color: white;
     min-height: 100vh;
@@ -136,7 +138,7 @@ body {
         <div class="row g-5">
 
             <div class="col-md-5">
-                <img src="assets/images/products/<?php echo $product['image_url'] ?: 'default.jpg'; ?>" class="img-fluid">
+                <img src="assets/images/products/<?php echo $product['image_url'] ?: 'default.jpg'; ?>" class="img-fluid" alt="Product Image">
             </div>
 
             <div class="col-md-7">
@@ -150,14 +152,11 @@ body {
 
                 <p><strong>Stock:</strong> <?php echo $product['stock_quantity']; ?></p>
 
-                <form action="cart_action.php" method="POST">
+                <form action="cart_action.php" method="POST" class="d-flex gap-2 align-items-center">
                     <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-
-                    <input type="number" name="quantity" min="1"
+                    <input type="number" name="quantity" min="1" class="form-control text-center" style="width: 80px;"
                            max="<?php echo $product['stock_quantity']; ?>" value="1">
-
-                    <button class="btn btn-info"
-                        <?php echo ($product['stock_quantity'] <= 0) ? 'disabled' : ''; ?>>
+                    <button class="btn btn-info" <?php echo ($product['stock_quantity'] <= 0) ? 'disabled' : ''; ?>>
                         Add to Cart
                     </button>
                 </form>
@@ -170,41 +169,46 @@ body {
 
 <?php else: ?>
 
-<!-- LIST MODE -->
 <div class="row g-4">
 
-    <?php foreach ($db_result as $prod): ?>
-
-    <div class="col-md-4">
-        <div class="product-cyber-card">
-
-            <div class="product-img-container">
-                <img src="assets/images/products/<?php echo $prod['image_url'] ?: 'default.jpg'; ?>"
-                     class="product-img-inventory">
-            </div>
-
-            <span class="badge badge-cyan">
-                <?php echo htmlspecialchars($prod['brand']); ?>
-            </span>
-
-            <h5><?php echo htmlspecialchars($prod['name']); ?></h5>
-
-            <p class="text-light opacity-50">
-                <?php echo substr(htmlspecialchars($prod['description']), 0, 80); ?>...
-            </p>
-
-            <h4 class="text-info">
-                $<?php echo number_format($prod['price'], 2); ?>
-            </h4>
-
-            <a href="products.php?id=<?php echo $prod['id']; ?>" class="btn btn-outline-light">
-                View Specs
-            </a>
-
+    <?php if (empty($db_result)): ?>
+        <div class="col-12 text-center my-5">
+            <p class="text-muted fs-4">No products found in the database.</p>
         </div>
-    </div>
+    <?php else: ?>
+        <?php foreach ($db_result as $prod): ?>
 
-    <?php endforeach; ?>
+        <div class="col-md-4">
+            <div class="product-cyber-card">
+
+                <div class="product-img-container">
+                    <img src="assets/images/products/<?php echo $prod['image_url'] ?: 'default.jpg'; ?>"
+                         class="product-img-inventory" alt="Product Image">
+                </div>
+
+                <span class="badge badge-cyan my-2 d-inline-block">
+                    <?php echo htmlspecialchars($prod['brand']); ?>
+                </span>
+
+                <h5><?php echo htmlspecialchars($prod['name']); ?></h5>
+
+                <p class="text-light opacity-50">
+                    <?php echo substr(htmlspecialchars($prod['description']), 0, 80); ?>...
+                </p>
+
+                <h4 class="text-info">
+                    $<?php echo number_format($prod['price'], 2); ?>
+                </h4>
+
+                <a href="products.php?id=<?php echo $prod['id']; ?>" class="btn btn-outline-light w-100 mt-2">
+                    View Specs
+                </a>
+
+            </div>
+        </div>
+
+        <?php endforeach; ?>
+    <?php endif; ?>
 
 </div>
 
