@@ -1,21 +1,15 @@
 FROM php:8.2-apache
 
-# Install system dependencies
+# تثبيت PostgreSQL dependencies
 RUN apt-get update && apt-get install -y \
     libpq-dev \
-    unzip \
-    git
+    && docker-php-ext-install pdo pdo_pgsql pgsql
 
-# IMPORTANT: PostgreSQL + PDO driver
-RUN docker-php-ext-install pdo pdo_pgsql pgsql mysqli pdo_mysql
-
-# Enable Apache rewrite
+# تفعيل rewrite
 RUN a2enmod rewrite
 
-# Copy project
+# نسخ الملفات
 COPY . /var/www/html/
 
-# Permissions
+# صلاحيات
 RUN chown -R www-data:www-data /var/www/html
-
-EXPOSE 80
