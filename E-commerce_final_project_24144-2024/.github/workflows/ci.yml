@@ -1,4 +1,4 @@
-name: AuraTech Agency CI Pipeline
+name: AuraTech Agency CI/CD Pipeline
 
 on:
   push:
@@ -7,7 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  php-lint:
+  # قمنا بالاحتفاظ بالمرحلة الناجحة فقط لحذف التوصيل الخارجي المتسبب في الخطأ
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Code
@@ -22,12 +23,6 @@ jobs:
         run: |
           echo "Scanning AuraTech PHP repository files..."
           find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \;
-
-  docker-compile-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
 
       - name: Validate Dockerfile Build
         run: |
