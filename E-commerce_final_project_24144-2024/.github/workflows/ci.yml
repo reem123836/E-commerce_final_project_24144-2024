@@ -1,25 +1,39 @@
-# تعريف المراحل الخاصة بالتكامل المستمر
-stages:
-  - lint
-  - build
+name: AuraTech Continuous Integration
 
-# 1. مرحلة فحص كود الـ PHP للتأكد من عدم وجود أخطاء في الصياغة (Syntax Errors)
-php_lint_check:
-  stage: lint
-  image: php:8.2-cli
-  script:
-    - echo "Executing static analysis on AuraTech PHP repository..."
-    - find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \;
+# تحديد متى يعمل الـ Action تلقائياً (عند أي Push أو Pull Request على فرع main)
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-# 2. مرحلة اختبار بناء حاوية الدوكر (Docker Build Test)
-docker_image_build:
-  stage: build
-  image: docker:24.0.7
-  services:
-    - docker:24.0.7-dind # استخدام خاصية Docker-in-Docker للبناء السحابي
-  variables:
-    DOCKER_TLS_CERTDIR: ""
-  script:
-    - echo "Validating AuraTech Docker deployment architecture..."
-    - docker build -t auratech-web-test:latest .
-    - echo "Docker matrix compilation completed successfully."
+jobs:
+  # 1. وظيفة فحص كود الـ PHP من الأخطاء الصياغية
+  php-lint-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP Environment
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Execute PHP Lint
+        run: |
+          echo "Scanning AuraTech PHP source files for compilation errors..."
+          find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \;
+
+  # 2. وظيفة اختبار بناء الحاوية (Docker Build) للتأكد من سلامة الـ Dockerfile
+  docker-build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Validate Docker Compilation
+        run: |
+          echo "Testing integration parameters on AuraTech Dockerfile setup..."
+          docker build -t auratech-web-test:latest .
+          echo "Docker image built successfully without compilation faults."
