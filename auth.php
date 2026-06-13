@@ -1,27 +1,25 @@
 <?php
-// 1. بدء جلسة العمل وتفعيل نظام تقارير الأخطاء
+// 1. بدء جلسة العمل وتفعيل نظام تقارير الأخطاء لـ MySQLi
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-// 2. إعدادات الاتصال بقاعدة البيانات الخاصة بالدوكر (تعديل الـ DSN المصحح)
-$db_host = 'db'; 
-$db_name = 'laptop_agency_db';
-$db_user = 'root';
-$db_pass = 'root';
+// 2. إعدادات الاتصال المباشر بقاعدة البيانات (نفس كود المنتجات الشغال)
+$host = 'db'; 
+$user = 'root';
+$password = 'root';
+$dbname = 'laptop_agency_db'; 
 
 try {
-    // السطر المصحح الذي يقضي على خطأ Argument #1 ($dsn)
-    $dsn = "mysql:host=$db_host;dbname=$db_name;charset=utf8mb4";
-    $conn = new PDO($dsn, $db_user, $db_pass);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $conn->exec("set names utf8mb4");
-} catch (PDOException $e) {
-    die("Database Connection Failure: " . $e->getMessage());
+    // الاتصال باستخدام MySQLi بدلاً من PDO
+    $conn = new mysqli($host, $user, $password, $dbname);
+    $conn->set_charset("utf8mb4");
+} catch (mysqli_sql_exception $e) {
+    die("خطأ في الاتصال بقاعدة البيانات: " . $e->getMessage());
 }
 
-// 3. منطق معالجة البيانات عند إرسال النموذج (Form Submission)
+// 3. منطق معالجة تسجيل الدخول بـ MySQLi
 $error_message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -29,19 +27,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password'] ?? '');
 
     if (empty($username) || empty($password)) {
-        $error_message = 'الرجاء إدخال اسم المستخدم وكلمة المرور كاملاً.';
+        $error_message = 'الرجاء إدخال اسم المستخدم وكلمة المرور كاملة.';
     } else {
         try {
-            // استعلام التحقق من المستخدم
-            $stmt = $conn->prepare("SELECT * FROM users WHERE username = :username LIMIT 1");
-            $stmt->execute([':username' => $username]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            // استخدام الاستعلامات الجاهزة (Prepared Statements) في MySQLi للحماية
+            $stmt = $conn->prepare("SELECT * FROM users WHERE username = ? LIMIT 1");
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $user = $result->fetch_assoc();
 
-            // التحقق من كلمة المرور (يدعم التشفير أو المطابقة المباشرة حسب نظام مشروعك)
+            // التحقق من كلمة المرور (يدعم المطابقة المباشرة أو التشفير)
             if ($user && ($password === $user['password'] || password_verify($password, $user['password']))) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
-                $_SESSION['role'] = $user['role'] ?? 'admin'; // افتراضي مدير النظام
+                $_SESSION['role'] = $user['role'] ?? 'admin';
                 
                 // التوجيه لصفحة المنتجات بعد النجاح
                 header("Location: products.php");
@@ -49,13 +49,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $error_message = 'اسم المستخدم أو كلمة المرور غير صحيحة!';
             }
-        } catch (PDOException $e) {
+            $stmt->close();
+        } catch (mysqli_sql_exception $e) {
             $error_message = 'حدث خطأ أثناء معالجة الطلب: ' . $e->getMessage();
         }
     }
 }
 
-// منطق تسجيل الخروج المدمج (Logout Action)
+// منطق تسجيل الخروج المدمج
 if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     session_destroy();
     header("Location: auth.php");
@@ -99,7 +100,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             position: relative;
         }
 
-        /* تأثيرات النيون في الخلفية لتعزيز واجهة الـ Ecosystem */
         body::before, body::after {
             content: '';
             position: absolute;
@@ -114,14 +114,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 
         body::before { top: 10%; right: 10%; }
         body::after { bottom: 10%; left: 10%; }
-     .auth-container {
+
+        .auth-container {
             position: relative;
             z-index: 1;
             width: 100%;
             max-width: 450px;
             padding: 20px;
         }
-
         .auth-card {
             background: var(--card-bg);
             backdrop-filter: blur(12px);
@@ -132,17 +132,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 
                         inset 0 1px 0 rgba(255, 255, 255, 0.1);
             text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .auth-card:hover {
-            box-shadow: 0 25px 50px rgba(14, 165, 233, 0.15), 
-                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-        }
-
-        .brand-header {
-            margin-bottom: 35px;
-        }
+        .brand-header margin-bottom: 35px;
 
         .brand-icon {
             font-size: 3rem;
@@ -156,7 +148,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
         .brand-header h1 {
             font-size: 1.8rem;
             font-weight: 700;
-            letter-spacing: -0.5px;
             margin-bottom: 8px;
             background: linear-gradient(to left, #ffffff, #cbd5e1);
             -webkit-background-clip: text;
@@ -171,7 +162,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
         .form-group {
             margin-bottom: 22px;
             text-align: right;
-            position: relative;
         }
 
         .form-group label {
@@ -180,7 +170,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             font-size: 0.85rem;
             font-weight: 600;
             color: #cbd5e1;
-            padding-right: 4px;
         }
 
         .input-wrapper {
@@ -193,8 +182,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-muted);
-            font-size: 1rem;
-            transition: color 0.3s ease;
         }
 
         .form-control {
@@ -205,7 +192,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             border-radius: 8px;
             color: var(--text-main);
             font-size: 0.95rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .form-control:focus {
@@ -213,10 +199,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             border-color: var(--neon-blue);
             background: rgba(15, 23, 42, 0.8);
             box-shadow: 0 0 12px rgba(14, 165, 233, 0.3);
-        }
-
-        .form-control:focus + i {
-            color: var(--neon-blue);
         }
 
         .alert-danger {
@@ -230,7 +212,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             display: flex;
             align-items: center;
             gap: 10px;
-            text-align: right;
         }
 
         .btn-submit {
@@ -243,28 +224,21 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 10px;
-        }
-           .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
-            background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-blue) 100%);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
         }
 
-        .btn-submit:active {
-            transform: translateY(0);
+        .btn-submit:hover {
+            background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-blue) 100%);
         }
 
         .footer-credits {
             margin-top: 30px;
             font-size: 0.75rem;
             color: rgba(148, 163, 184, 0.5);
-            letter-spacing: 0.5px;
         }
     </style>
 </head>
@@ -274,10 +248,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     <div class="auth-card">
         <div class="brand-header">
             <div class="brand-icon">
-                <i class="fa-solid to-cube"></i> <i class="fa-solid var(--neon-blue) fa-server"></i>
+                <i class="fa-solid fa-server"></i>
             </div>
             <h1>Hardware Ecosystem</h1>
-            <p>بوابة تسجيل الدخول الآمنة للنظام الإداري</p>
+            <p>بوابة تسجيل الدخول الآمنة للنظام الإداري (MySQLi)</p>
         </div>
 
         <?php if (!empty($error_message)): ?>
@@ -286,7 +260,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
                 <span><?php echo htmlspecialchars($error_message); ?></span>
             </div>
         <?php endif; ?>
-
         <form action="auth.php" method="POST" autocomplete="off">
             <div class="form-group">
                 <label for="username">اسم المستخدم</label>
@@ -296,8 +269,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
                 </div>
             </div>
 
-<div class="form-group">
-                <label for="password">كلمة المرور المشفرة</label>
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
                 <div class="input-wrapper">
                     <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
                     <i class="fa-solid fa-lock"></i>
@@ -305,7 +278,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             </div>
 
             <button type="submit" class="btn-submit">
-                <span>تخطي المصادقة والدخول</span>
+                <span>تسجيل الدخول للنظام</span>
                 <i class="fa-solid fa-arrow-right-to-bracket"></i>
             </button>
         </form>
