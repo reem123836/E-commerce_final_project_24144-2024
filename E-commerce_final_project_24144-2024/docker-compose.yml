@@ -1,38 +1,42 @@
 version: '3.8'
 
 services:
-  # Web Service (PHP + Apache)
+  # 1. عقدة خادم الويب والـ PHP (App Node)
   web:
-    build: .
+    image: php:8.2-apache
     container_name: auratech_web_app
     ports:
-      - "8080:80"
+      - "8080:80" # تشغيل المشروع على المنفذ 8080 (يمكنك تغييره إلى 80 إذا كان المنفذ شاغراً)
     volumes:
-      - .:/var/www/html/
+      - .:/var/www/html # ربط مجلد المشروع الحالي داخل الحاوية لتحديث الكود تلقائياً
     depends_on:
-      - db
+      - db # عدم تشغيل السيرفر إلا بعد تشغيل قاعدة البيانات أولاً
     networks:
       - auratech_network
+    build:
+      context: .
+      dockerfile: Dockerfile # في حال كنت تستخدم Dockerfile مخصص لتثبيت mysqli
 
-  # PostgreSQL Database
+  # 2. عقدة قاعدة البيانات (Database Node)
   db:
-    image: postgres:15
-    container_name: auratech_postgres_db
+    image: mysql:8.0
+    container_name: auratech_db_mysql
     restart: always
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root_password
-      POSTGRES_DB: laptop_agency_db
+      MYSQL_ROOT_PASSWORD: root_password # نفس كلمة المرور الموجودة في config.php
+      MYSQL_DATABASE: laptop_agency_db   # نفس اسم قاعدة البيانات
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - auratech_db_data:/var/lib/mysql # حفظ البيانات ممتدة حتى لو تم إيقاف الحاوية
     networks:
       - auratech_network
 
+# شبكة داخلية معزولة لربط الحاويات ببعضها بأمان
 networks:
   auratech_network:
     driver: bridge
 
+# مساحة تخزين مستمرة لحفظ بيانات الـ SQL
 volumes:
-  pg_data:
+  auratech_db_data:
