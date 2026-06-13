@@ -1,6 +1,5 @@
-name: AuraTech Continuous Integration
+name: AuraTech Agency CI Pipeline
 
-# تحديد متى يعمل الـ Action تلقائياً (عند أي Push أو Pull Request على فرع main)
 on:
   push:
     branches: [ main ]
@@ -8,32 +7,29 @@ on:
     branches: [ main ]
 
 jobs:
-  # 1. وظيفة فحص كود الـ PHP من الأخطاء الصياغية
-  php-lint-check:
+  php-lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Setup PHP Environment
+      - name: Setup PHP CLI Environment
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
 
-      - name: Execute PHP Lint
+      - name: Scan PHP Syntax Errors
         run: |
-          echo "Scanning AuraTech PHP source files for compilation errors..."
+          echo "Scanning AuraTech PHP repository files..."
           find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \;
 
-  # 2. وظيفة اختبار بناء الحاوية (Docker Build) للتأكد من سلامة الـ Dockerfile
-  docker-build-test:
+  docker-compile-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Validate Docker Compilation
+      - name: Validate Dockerfile Build
         run: |
-          echo "Testing integration parameters on AuraTech Dockerfile setup..."
+          echo "Compiling AuraTech Docker image architecture..."
           docker build -t auratech-web-test:latest .
-          echo "Docker image built successfully without compilation faults."
