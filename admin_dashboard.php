@@ -17,17 +17,15 @@ require_once 'config.php';
 $message = "";
 $message_class = "";
 
-// CRUD Engine Operations
-
-// 1. Create (Insert Product Node)
+// 1. Create
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_product'])) {
-    $name = trim($_POST['name']);
-    $brand = trim($_POST['brand']);
-    $product_type = $_POST['product_type'];
-    $description = trim($_POST['description']);
-    $price = floatval($_POST['price']);
-    $stock_quantity = intval($_POST['stock_quantity']);
-    $image_url = trim($_POST['image_url']);
+    $name = trim($_POST['name'] ?? '');
+    $brand = trim($_POST['brand'] ?? '');
+    $product_type = $_POST['product_type'] ?? '';
+    $description = trim($_POST['description'] ?? '');
+    $price = floatval($_POST['price'] ?? 0);
+    $stock_quantity = intval($_POST['stock_quantity'] ?? 0);
+    $image_url = trim($_POST['image_url'] ?? '');
 
     if (empty($image_url)) {
         $image_url = 'default.jpg';
@@ -37,26 +35,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_product'])) {
         $stmt = $conn->prepare("INSERT INTO products (name, brand, product_type, description, price, stock_quantity, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("ssssdis", $name, $brand, $product_type, $description, $price, $stock_quantity, $image_url);
         if ($stmt->execute()) {
-            $message = "Product initialized inside inventory block successfully.";
-            $message_class = "alert-success";
+            $stmt->close();
+            header("Location: admin_dashboard.php");
+            exit();
         }
-        $stmt->close();
     } catch (mysqli_sql_exception $e) {
-        $message = "Creation pipeline failure: " . $e->getMessage();
+        $message = "Error adding product: " . $e->getMessage();
         $message_class = "alert-danger";
     }
 }
 
-// 2. Update (Edit Asset Node)
+// 2. Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_product'])) {
-    $id = intval($_POST['product_id']);
-    $name = trim($_POST['name']);
-    $brand = trim($_POST['brand']);
-    $product_type = $_POST['product_type'];
-    $description = trim($_POST['description']);
-    $price = floatval($_POST['price']);
-    $stock_quantity = intval($_POST['stock_quantity']);
-    $image_url = trim($_POST['image_url']);
+    $id = intval($_POST['product_id'] ?? 0);
+    $name = trim($_POST['name'] ?? '');
+    $brand = trim($_POST['brand'] ?? '');
+    $product_type = $_POST['product_type'] ?? '';
+    $description = trim($_POST['description'] ?? '');
+    $price = floatval($_POST['price'] ?? 0);
+    $stock_quantity = intval($_POST['stock_quantity'] ?? 0);
+    $image_url = trim($_POST['image_url'] ?? '');
 
     if (empty($image_url)) {
         $image_url = 'default.jpg';
@@ -66,34 +64,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_product'])) {
         $stmt = $conn->prepare("UPDATE products SET name = ?, brand = ?, product_type = ?, description = ?, price = ?, stock_quantity = ?, image_url = ? WHERE id = ?");
         $stmt->bind_param("ssssdisi", $name, $brand, $product_type, $description, $price, $stock_quantity, $image_url, $id);
         if ($stmt->execute()) {
-            $message = "Product hardware matrix updated successfully.";
-            $message_class = "alert-success";
+            $stmt->close();
+            header("Location: admin_dashboard.php");
+            exit();
         }
-        $stmt->close();
     } catch (mysqli_sql_exception $e) {
-        $message = "Update pipeline failure: " . $e->getMessage();
+        $message = "Error updating product: " . $e->getMessage();
         $message_class = "alert-danger";
     }
 }
 
-// 3. Delete (Terminate Product Node)
+// 3. Delete
 if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']);
     try {
         $stmt = $conn->prepare("DELETE FROM products WHERE id = ?");
         $stmt->bind_param("i", $id);
         if ($stmt->execute()) {
-            $message = "Product terminated from live deployment node.";
-            $message_class = "alert-success";
+            $stmt->close();
+            header("Location: admin_dashboard.php");
+            exit();
         }
-        $stmt->close();
     } catch (mysqli_sql_exception $e) {
-        $message = "Termination failure: " . $e->getMessage();
+        $message = "Error deleting product: " . $e->getMessage();
         $message_class = "alert-danger";
     }
 }
 
-// 4. Read (Fetch pipeline dataset)
+// 4. Read
 $products = [];
 try {
     $result = $conn->query("SELECT * FROM products ORDER BY id DESC");
@@ -101,7 +99,7 @@ try {
         $products[] = $row;
     }
 } catch (mysqli_sql_exception $e) {
-    $message = "Data stream fetch error: " . $e->getMessage();
+    $message = "Error fetching data: " . $e->getMessage();
 }
 ?>
 
@@ -110,7 +108,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AuraTech Agency - Admin Infrastructure</title>
+    <title>Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
@@ -169,11 +167,6 @@ try {
             box-shadow: 0 0 10px rgba(6, 182, 212, 0.4) !important;
         }
 
-        .form-select-auratech option {
-            background-color: #0b0f19;
-            color: #fff;
-        }
-
         .btn-auratech {
             background: linear-gradient(90deg, var(--neon-cyan), #0891b2);
             color: #0b0f19 !important;
@@ -189,91 +182,78 @@ try {
             box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
         }
 
-        .table-auratech {
-            color: var(--text-light) !important;
-        }
-
+        .table-auratech { color: var(--text-light) !important; }
         .table-auratech th {
             background-color: rgba(11, 15, 25, 0.8) !important;
             color: var(--neon-cyan) !important;
             border-color: var(--border-glass) !important;
         }
-
         .table-auratech td {
             background-color: rgba(255, 255, 255, 0.01) !important;
             border-color: var(--border-glass) !important;
             vertical-align: middle;
+            color: #ffffff !important;
+            font-weight: 500;
         }
-
-        .alert-success {
-            background-color: rgba(10, 26, 15, 0.5);
-            border: 1px solid #064a1c;
-            color: #59ff8b;
-        }
-
-        .alert-danger {
-            background-color: rgba(26, 15, 10, 0.5);
-            border: 1px solid #4a2306;
-            color: #ff9e59;
-        }
+        .alert-success { background-color: rgba(10, 26, 15, 0.5); border: 1px solid #064a1c; color: #59ff8b; }
+        .alert-danger { background-color: rgba(26, 15, 10, 0.5); border: 1px solid #4a2306; color: #ff9e59; }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark navbar-auratech">
     <div class="container">
-        <a class="navbar-brand brand-title" href="#">AURATECH SYSTEM CONTROL</a>
+        <a class="navbar-brand brand-title" href="#">AURATECH CONTROL</a>
         <div class="d-flex align-items-center">
-            <span class="text-light me-3 opacity-75"><i class="bi bi-shield-lock me-1"></i> Global Cluster</span>
-            <a href="index.php" class="btn btn-outline-info btn-sm">View Storefront</a>
+            <a href="index.php" class="btn btn-outline-info btn-sm">View Store</a>
         </div>
     </div>
 </nav>
+
 <div class="container">
     <div class="dashboard-container">
-        
-        <h2 class="mb-4 text-center" style="font-weight: 700; letter-spacing: 0.5px;">Infrastructure Catalog Controller</h2>
+        <h2 class="mb-4 text-center" style="font-weight: 700;">Product Management</h2>
 
         <?php if (!empty($message)): ?>
             <div class="alert <?php echo $message_class; ?> text-center mb-4"><?php echo htmlspecialchars($message); ?></div>
         <?php endif; ?>
 
         <div class="card card-body bg-transparent border-0 p-0 mb-5">
-            <h4 class="mb-3 text-start" style="color: var(--neon-cyan);"><i class="bi bi-plus-circle me-2"></i>Inject Hardware Node</h4>
+            <h4 class="mb-3 text-start" style="color: var(--neon-cyan);"><i class="bi bi-plus-circle me-2"></i>Add New Product</h4>
             <form action="admin_dashboard.php" method="POST">
                 <div class="row g-3">
                     <div class="col-md-3">
-                        <label class="form-label small opacity-75">Product Name</label>
-                        <input type="text" name="name" class="form-control form-control-auratech" required autocomplete="off">
+                        <label class="form-label small">Product Name</label>
+                        <input type="text" name="name" class="form-control form-control-auratech" required>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label small opacity-75">Brand Matrix</label>
-                        <input type="text" name="brand" class="form-control form-control-auratech" required autocomplete="off">
+                        <label class="form-label small">Brand</label>
+                        <input type="text" name="brand" class="form-control form-control-auratech" required>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label small opacity-75">Product Pipeline Type</label>
+                        <label class="form-label small">Type</label>
                         <select name="product_type" class="form-select form-select-auratech" required>
                             <option value="Laptop">Laptop</option>
                             <option value="Accessory">Accessory</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label small opacity-75">Price (USD)</label>
+                        <label class="form-label small">Price</label>
                         <input type="number" step="0.01" name="price" class="form-control form-control-auratech" required>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label small opacity-75">Stock Allocation Matrix</label>
+                        <label class="form-label small">Stock Quantity</label>
                         <input type="number" name="stock_quantity" class="form-control form-control-auratech" value="10" required>
                     </div>
                     <div class="col-md-5">
-                        <label class="form-label small opacity-75">Asset Vector Image Filename</label>
+                        <label class="form-label small">Image Filename</label>
                         <input type="text" name="image_url" class="form-control form-control-auratech" placeholder="default.jpg">
                     </div>
                     <div class="col-md-4 align-self-end">
-                        <button type="submit" name="create_product" class="btn btn-auratech w-100">Deploy System Assets</button>
+                        <button type="submit" name="create_product" class="btn btn-auratech w-100">Save Product</button>
                     </div>
                     <div class="col-12">
-                        <label class="form-label small opacity-75">System Specifications & Data Profile</label>
+                        <label class="form-label small">Description</label>
                         <textarea name="description" rows="2" class="form-control form-control-auratech"></textarea>
                     </div>
                 </div>
@@ -282,45 +262,42 @@ try {
 
         <hr style="border-color: var(--border-glass);" class="my-5">
 
-        <h4 class="mb-3 text-start" style="color: var(--neon-cyan);"><i class="bi bi-hdd-network me-2"></i>Active Pipeline Grid</h4>
+        <h4 class="mb-3 text-start" style="color: var(--neon-cyan);"><i class="bi bi-hdd-network me-2"></i>Product List</h4>
         <div class="table-responsive">
             <table class="table table-auratech">
                 <thead>
                     <tr>
+                        <th>Image</th>
                         <th>ID</th>
-                        <th>Classification Block</th>
+                        <th>Product Details</th>
                         <th>Type</th>
-                        <th>Cost Matrix</th>
-                        <th>Stock Allocation</th>
-                        <th>Execution Sequence</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
                     </tr>
-         </thead>
+                </thead>
                 <tbody>
                     <?php if (empty($products)): ?>
-                        <tr>
-                            <td colspan="6" class="text-center opacity-50 py-4">No active cluster products initialized.</td>
-                        </tr>
+                        <tr><td colspan="7" class="text-center py-4">No products found.</td></tr>
                     <?php else: ?>
                         <?php foreach ($products as $prod): ?>
                             <tr>
+                                <td>
+                                    <img src="assets/images/products/<?php echo htmlspecialchars($prod['image_url'] ?? 'default.jpg'); ?>" 
+                                         style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px;" 
+                                         onerror="this.src='https://via.placeholder.com/50?text=Err'">
+                                </td>
                                 <td>#<?php echo $prod['id']; ?></td>
                                 <td>
-                                    <span class="badge bg-secondary mb-1"><?php echo htmlspecialchars($prod['brand']); ?></span><br>
-                                    <strong><?php echo htmlspecialchars($prod['name']); ?></strong>
-                                    <div class="small opacity-50 text-truncate" style="max-width: 250px;"><?php echo htmlspecialchars($prod['description']); ?></div>
+                                    <span class="badge bg-secondary mb-1"><?php echo htmlspecialchars($prod['brand'] ?? ''); ?></span><br>
+                                    <strong style="font-size: 1.1em;"><?php echo htmlspecialchars($prod['name'] ?? ''); ?></strong>
                                 </td>
+                                <td><?php echo $prod['product_type'] ?? ''; ?></td>
+                                <td>$<?php echo number_format($prod['price'] ?? 0, 2); ?></td>
+                                <td><?php echo $prod['stock_quantity'] ?? 0; ?></td>
                                 <td>
-                                    <span class="text-info"><?php echo $prod['product_type']; ?></span>
-                                </td>
-                                <td>$<?php echo number_format($prod['price'], 2); ?></td>
-                                <td><?php echo $prod['stock_quantity']; ?> units</td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-info me-2" onclick='openEditModal(<?php echo json_encode($prod, JSON_HEX_APOS | JSON_HEX_QUOT); ?>)'>
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                    <a href="admin_dashboard.php?delete=<?php echo $prod['id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Confirm hardware termination sequence?')">
-                                        <i class="bi bi-trash3"></i>
-                                    </a>
+                                    <button class="btn btn-sm btn-outline-info" onclick='openEditModal(<?php echo json_encode($prod, JSON_HEX_APOS | JSON_HEX_QUOT); ?>)'>Edit</button>
+                                    <a href="admin_dashboard.php?delete=<?php echo $prod['id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">Delete</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -331,51 +308,22 @@ try {
     </div>
 </div>
 
-<div class="modal fade" id="editModal" static tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(10px);">
+<div class="modal fade" id="editModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="background: #11151f; border: 1px solid var(--neon-cyan); border-radius: 14px; color: var(--text-light);">
-            <div class="modal-header border-0">
-                <h5 class="modal-title" style="color: var(--neon-cyan);">Modify Structural Asset</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+        <div class="modal-content" style="background: #11151f; border: 1px solid var(--neon-cyan); border-radius: 14px;">
+            <div class="modal-header border-0"><h5 style="color: var(--neon-cyan);">Edit Product</h5></div>
             <form action="admin_dashboard.php" method="POST">
                 <div class="modal-body">
                     <input type="hidden" name="product_id" id="edit_id">
-                    <div class="mb-3">
-                        <label class="form-label">Product Name</label>
-                        <input type="text" name="name" id="edit_name" class="form-control form-control-auratech" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Brand Matrix</label>
-                        <input type="text" name="brand" id="edit_brand" class="form-control form-control-auratech" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Product Allocation Type</label>
-                        <select name="product_type" id="edit_product_type" class="form-select form-select-auratech" required>
-                            <option value="Laptop">Laptop</option>
-              <option value="Accessory">Accessory</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Price (USD)</label>
-                        <input type="number" step="0.01" name="price" id="edit_price" class="form-control form-control-auratech" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Stock Units Allocation</label>
-                        <input type="number" name="stock_quantity" id="edit_stock_quantity" class="form-control form-control-auratech" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Asset Image Filename</label>
-                        <input type="text" name="image_url" id="edit_image_url" class="form-control form-control-auratech">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Product Detailed Specification</label>
-                        <textarea name="description" id="edit_description" rows="2" class="form-control form-control-auratech"></textarea>
-                    </div>
+                    <div class="mb-3"><label>Name</label><input type="text" name="name" id="edit_name" class="form-control form-control-auratech" required></div>
+                    <div class="mb-3"><label>Brand</label><input type="text" name="brand" id="edit_brand" class="form-control form-control-auratech" required></div>
+                    <div class="mb-3"><label>Price</label><input type="number" step="0.01" name="price" id="edit_price" class="form-control form-control-auratech" required></div>
+                    <div class="mb-3"><label>Stock</label><input type="number" name="stock_quantity" id="edit_stock_quantity" class="form-control form-control-auratech" required></div>
+                    <div class="mb-3"><label>Description</label><textarea name="description" id="edit_description" class="form-control form-control-auratech"></textarea></div>
                 </div>
                 <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel Sequence</button>
-                    <button type="submit" name="update_product" class="btn btn-auratech">Commit Adjustments</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" name="update_product" class="btn btn-auratech">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -384,19 +332,15 @@ try {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
-    
     function openEditModal(product) {
         document.getElementById('edit_id').value = product.id;
         document.getElementById('edit_name').value = product.name;
         document.getElementById('edit_brand').value = product.brand;
-        document.getElementById('edit_product_type').value = product.product_type;
         document.getElementById('edit_price').value = product.price;
         document.getElementById('edit_stock_quantity').value = product.stock_quantity;
-        document.getElementById('edit_image_url').value = product.image_url;
         document.getElementById('edit_description').value = product.description;
-        editModal.show();
+        new bootstrap.Modal(document.getElementById('editModal')).show();
     }
 </script>
 </body>
-</html>                         
+</html>
