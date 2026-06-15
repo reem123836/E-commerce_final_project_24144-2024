@@ -25,18 +25,20 @@ jobs:
       - name: Validate Dockerfile Build
         run: |
           docker build -t auratech-web-test:latest .
-          deploy:
+
+  deploy:
     name: 🎉 Deploy to InfinityFree
     runs-on: ubuntu-latest
+    needs: build-and-test # سحر الـ DevOps: الرفع لن يبدأ إلا إذا نجح فحص الدوكر والـ PHP وتأكدنا أن كودك سليم 100%!
     steps:
-    - name: 🚚 Get latest code
-      uses: actions/checkout@v4
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
     
-    - name: 📂 Sync files to InfinityFree
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./
-        server-dir: ./htdocs/
+      - name: 📂 Sync files to InfinityFree
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./
+          server-dir: ./htdocs/
