@@ -1,66 +1,61 @@
 <?php
-// 1. بدء جلسة العمل وتفعيل نظام تقارير الأخطاء لـ MySQLi
+// auth.php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-// 2. إعدادات الاتصال المباشر بقاعدة البيانات (نفس كود المنتجات الشغال)
-$host = 'db'; 
-$user = 'root';
-$password = 'root';
-$dbname = 'laptop_agency_db'; 
-
-try {
-    // الاتصال باستخدام MySQLi بدلاً من PDO
-    $conn = new mysqli($host, $user, $password, $dbname);
-    $conn->set_charset("utf8mb4");
-} catch (mysqli_sql_exception $e) {
-    die("خطأ في الاتصال بقاعدة البيانات: " . $e->getMessage());
+// إذا كان المستخدم مسجل دخول بالفعل، يتم توجيهه للرئيسية فوراً
+if (isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
 }
 
-// 3. منطق معالجة تسجيل الدخول بـ MySQLi
-$error_message = '';
+$error_message = "";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
-    $password = trim($_POST['password'] ?? '');
+// 1️⃣ منطق معالجة البيانات عند إرسال الفورم (POST) باستخدام MySQLi
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $host = getenv('DB_HOST') ?: 'localhost';
+    $dbname = getenv('DB_DATABASE') ?: 'auratech_db';
+    $username = getenv('DB_USERNAME') ?: 'root';
+    $password = getenv('DB_PASSWORD') ?: '';
 
-    if (empty($username) || empty($password)) {
-        $error_message = 'الرجاء إدخال اسم المستخدم وكلمة المرور كاملة.';
+    // الاتصال بقاعدة البيانات
+    $conn = new mysqli($host, $username, $password, $dbname);
+
+    if ($conn->connect_error) {
+        error_log("Database Connection Error (MySQLi): " . $conn->connect_error);
+        $error_message = "حدث خطأ في الاتصال بقاعدة البيانات.";
     } else {
-        try {
-            // استخدام الاستعلامات الجاهزة (Prepared Statements) في MySQLi للحماية
-            $stmt = $conn->prepare("SELECT * FROM users WHERE username = ? LIMIT 1");
-            $stmt->bind_param("s", $username);
+        $conn->set_charset("utf8");
+
+        $email = trim($_POST['email']);
+        $password_input = trim($_POST['password']);
+
+        if (!empty($email) && !empty($password_input)) {
+            // استخدام Prepared Statements لحماية الموقع من الـ SQL Injection
+            $stmt = $conn->prepare("SELECT id, name, password, role FROM users WHERE email = ? LIMIT 1");
+            $stmt->bind_param("s", $email);
             $stmt->execute();
             $result = $stmt->get_result();
             $user = $result->fetch_assoc();
 
-            // التحقق من كلمة المرور (يدعم المطابقة المباشرة أو التشفير)
-            if ($user && ($password === $user['password'] || password_verify($password, $user['password']))) {
+            // التحقق من كلمة المرور (باستخدام الحماية القياسية المتوافقة مع تشفير الـ hash)
+            if ($user && password_verify($password_input, $user['password'])) {
                 $_SESSION['user_id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['role'] = $user['role'] ?? 'admin';
-                
-                // التوجيه لصفحة المنتجات بعد النجاح
-                header("Location: products.php");
-                exit;
+                $_SESSION['user_name'] = $user['name'];
+                $_SESSION['user_role'] = $user['role'] ?? 'user';
+
+                header("Location: index.php");
+                exit();
             } else {
-                $error_message = 'اسم المستخدم أو كلمة المرور غير صحيحة!';
+                $error_message = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
             }
             $stmt->close();
-        } catch (mysqli_sql_exception $e) {
-            $error_message = 'حدث خطأ أثناء معالجة الطلب: ' . $e->getMessage();
+        } else {
+            $error_message = "يرجى ملء جميع الحقول المطلوبة.";
         }
+        $conn->close();
     }
-}
-
-// منطق تسجيل الخروج المدمج
-if (isset($_GET['action']) && $_GET['action'] === 'logout') {
-    session_destroy();
-    header("Location: auth.php");
-    exit;
 }
 ?>
 <!DOCTYPE html>
@@ -68,18 +63,24 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة التحكم الآمنة | Hardware Ecosystem</title>
+    <title>تسجيل الدخول | AuraTech Agency</title>
+    <!-- خط Google Cairo المميز للواجهات الاحترافية -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- مكتبة FontAwesome للأيقونات العصرية -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --neon-blue: #0ea5e9;
-            --neon-cyan: #22d3ee;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-glow: rgba(14, 165, 233, 0.2);
+            --bg-dark: #0f172a;        /* الخلفية الداكنة العميقة */
+            --card-bg: #1e293b;        /* لون لوحة تسجيل الدخول */
+            --accent-cyan: #06b6d4;    /* لون الـ Cyan المضيء للوكالة */
+            --accent-blue: #3b82f6;    /* الأزرق التقني */
+            --text-main: #f8fafc;      /* النص الأبيض الناصع */
+            --text-muted: #94a3b8;     /* النص الرمادي الفرعي */
+            --input-bg: #0f172a;       /* خلفية الحقول */
+            --danger: #ef4444;         /* لون الخطأ الأحمر */
         }
 
         * {
@@ -90,7 +91,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
         }
 
         body {
-            background: var(--bg-gradient);
+            background-color: var(--bg-dark);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
@@ -100,194 +101,188 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             position: relative;
         }
 
+        /* دوائر مضيئة متحركة لإعطاء لمسة الـ Figma الراقية في الخلفية */
         body::before, body::after {
             content: '';
             position: absolute;
             width: 300px;
             height: 300px;
             border-radius: 50%;
-            background: var(--neon-blue);
+            background: linear-gradient(45deg, var(--accent-cyan), var(--accent-blue));
             filter: blur(120px);
             opacity: 0.15;
-            z-index: 0;
+            z-index: -1;
         }
+        body::before { top: -50px; right: -50px; }
+        body::after { bottom: -50px; left: -50px; }
 
-        body::before { top: 10%; right: 10%; }
-        body::after { bottom: 10%; left: 10%; }
-
-        .auth-container {
-            position: relative;
-            z-index: 1;
+        .login-container {
             width: 100%;
             max-width: 450px;
             padding: 20px;
         }
-        .auth-card {
+
+        .login-card {
             background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border-glow);
-            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
             padding: 40px 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 
-                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             text-align: center;
+            backdrop-filter: blur(10px);
         }
 
-        .brand-header margin-bottom: 35px;
-
-        .brand-icon {
-            font-size: 3rem;
-            background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan));
+        .brand-logo {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(to left, var(--accent-cyan), var(--accent-blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
             display: inline-block;
         }
 
-        .brand-header h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            background: linear-gradient(to left, #ffffff, #cbd5e1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .brand-header p {
-            font-size: 0.9rem;
+        .brand-sub {
             color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 35px;
         }
 
         .form-group {
-            margin-bottom: 22px;
+            margin-bottom: 25px;
             text-align: right;
+            position: relative;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
+            font-size: 14px;
             font-weight: 600;
-            color: #cbd5e1;
+            margin-bottom: 8px;
+            color: var(--text-main);
+            padding-right: 4px;
         }
 
         .input-wrapper {
             position: relative;
+            display: flex;
+            align-items: center;
         }
 
         .input-wrapper i {
             position: absolute;
             right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
             color: var(--text-muted);
+            font-size: 16px;
+            transition: color 0.3s ease;
         }
 
         .form-control {
             width: 100%;
             padding: 14px 45px 14px 15px;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            background-color: var(--input-bg);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
             color: var(--text-main);
-            font-size: 0.95rem;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            text-align: right;
         }
 
         .form-control:focus {
-            outline: none;
-            border-color: var(--neon-blue);
-            background: rgba(15, 23, 42, 0.8);
-            box-shadow: 0 0 12px rgba(14, 165, 233, 0.3);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.15);
         }
 
-        .alert-danger {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
+        .form-control:focus + i {
+            color: var(--accent-cyan);
+        }
+
+        .error-alert {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-right: 4px solid var(--danger);
+            color: var(--danger);
             padding: 12px;
             border-radius: 8px;
-            font-size: 0.85rem;
+            font-size: 13px;
+            text-align: right;
             margin-bottom: 25px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .btn-submit {
+        .btn-login {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, var(--neon-blue) 0%, #0284c7 100%);
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             color: white;
-            font-size: 1rem;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+            margin-top: 10px;
         }
 
-        .btn-submit:hover {
-            background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-blue) 100%);
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+            opacity: 0.95;
         }
 
-        .footer-credits {
+        .card-footer {
             margin-top: 30px;
-            font-size: 0.75rem;
-            color: rgba(148, 163, 184, 0.5);
+            font-size: 13px;
+            color: var(--text-muted);
         }
     </style>
 </head>
 <body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="brand-logo"><i class="fa-solid fa-laptop-code"></i> AuraTech Agency</div>
+            <div class="brand-sub">لوحة إدارة المنتجات والإكسسوارات التقنية</div>
 
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="brand-header">
-            <div class="brand-icon">
-                <i class="fa-solid fa-server"></i>
-            </div>
-            <h1>Hardware Ecosystem</h1>
-            <p>بوابة تسجيل الدخول الآمنة للنظام الإداري (MySQLi)</p>
-        </div>
-
-        <?php if (!empty($error_message)): ?>
-            <div class="alert-danger">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-                <span><?php echo htmlspecialchars($error_message); ?></span>
-            </div>
-        <?php endif; ?>
-        <form action="auth.php" method="POST" autocomplete="off">
-            <div class="form-group">
-                <label for="username">اسم المستخدم</label>
-                <div class="input-wrapper">
-                    <input type="text" id="username" name="username" class="form-control" placeholder="أدخل اسم المستخدم المعتمد" required value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>">
-                    <i class="fa-solid fa-user"></i>
+            <?php if (!empty($error_message)): ?>
+                <div class="error-alert">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span><?php echo htmlspecialchars($error_message); ?></span>
                 </div>
-            </div>
+            <?php endif; ?>
 
-            <div class="form-group">
-                <label for="password">كلمة المرور</label>
-                <div class="input-wrapper">
-                    <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
-                    <i class="fa-solid fa-lock"></i>
+            <!-- يرسل البيانات لنفس الصفحة -->
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST" autocomplete="off">
+                
+                <div class="form-group">
+                    <label for="email">البريد الإلكتروني</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="email" name="email" class="form-control" placeholder="name@example.com" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
+                        <i class="fa-regular fa-envelope"></i>
+                    </div>
                 </div>
+
+                <div class="form-group">
+                    <label for="password">كلمة المرور</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    تسجيل الدخول <i class="fa-solid fa-arrow-left-to-bracket" style="margin-right: 8px;"></i>
+                </button>
+            </form>
+
+            <div class="card-footer">
+                نظام محمي ومتصل بقاعدة البيانات عبر بيئة العمل المؤتمتة بالكامل.
             </div>
-
-            <button type="submit" class="btn-submit">
-                <span>تسجيل الدخول للنظام</span>
-                <i class="fa-solid fa-arrow-right-to-bracket"></i>
-            </button>
-        </form>
-
-        <div class="footer-credits">
-            <p>Designed by Reem Osama &copy; 2026</p>
         </div>
     </div>
-</div>
 
 </body>
 </html>
