@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS laptop_agency_db;
-USE laptop_agency_db;
+-- CREATE DATABASE IF NOT EXISTS laptop_agency_db;
+-- USE laptop_agency_db;
 
 -- 1. جدول المستخدمين / المدراء لـ AuraTech
 CREATE TABLE IF NOT EXISTS users (
