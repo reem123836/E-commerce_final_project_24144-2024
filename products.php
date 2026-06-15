@@ -256,7 +256,7 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
         <?php if ($view_details): ?>
             <div class="mb-4">
                 <a href="products.php" class="text-decoration-none style-back-link" style="color: var(--neon-cyan);">
-                    <i class="bi bi-arrow-left me-2"></i>Back to Authorized Inventory
+                    <i class="bi bi-arrow-left me-2"></i>Back to Inventory
                 </a>
             </div>
             <div class="details-cyber-card p-5">
@@ -276,10 +276,10 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
                         <h1 class="display-5 fw-bold text-white mb-3"><?php echo htmlspecialchars($product['name']); ?></h1>
                         <p class="fs-2 fw-bold mb-4" style="color: var(--neon-cyan);">$<?php echo number_format($product['price'], 2); ?></p>
                         
-                        <h5 class="fw-bold text-white-50 text-uppercase small">Architecture Description</h5>
+                        <h5 class="fw-bold text-white-50 text-uppercase small"> Description</h5>
                         <p class="text-light opacity-75 lead mb-4"><?php echo htmlspecialchars($product['description']); ?></p>
 
-                        <h5 class="fw-bold text-white-50 mb-3 small text-uppercase">Technical Specifications Matrix</h5>
+                        <h5 class="fw-bold text-white-50 mb-3 small text-uppercase"> Specifications </h5>
                         <table class="table table-bordered spec-table">
                             <tbody>
                                 <tr><th>Brand</th><td><?php echo htmlspecialchars($product['brand']); ?></td></tr>
@@ -295,13 +295,13 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
                             <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                             <input type="hidden" name="action" value="add">
                             <div class="row g-3 align-items-center">
-                                <div class="col-auto"><label class="col-form-label fw-bold text-white">Execution Quantity:</label></div>
+                                <div class="col-auto"><label class="col-form-label fw-bold text-white"> Quantity:</label></div>
                                 <div class="col-auto">
                                     <input type="number" name="quantity" class="form-control cyber-filter-input" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" style="width: 90px;">
                                 </div>
                                 <div class="col-auto">
                                     <button type="submit" class="btn btn-add-cart px-4 py-2 text-dark shadow" <?php echo ($product['stock_quantity'] <= 0) ? 'disabled' : ''; ?>>
-                                        <i class="bi bi-cart-plus-fill me-2"></i>Commit to Shopping Cart
+                                        <i class="bi bi-cart-plus-fill me-2"></i> Shopping Cart
                                     </button>
                                 </div>
                             </div>
@@ -311,14 +311,14 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
             </div>
             <?php else: ?>
             <header class="mb-5">
-                <h1 class="display-4 fw-bold text-white mb-1">Hardware Ecosystem Architecture</h1>
-                <p class="text-light opacity-50 fs-5">Browse corporate-grade assets with live database diagnostics.</p>
+                <h1 class="display-4 fw-bold text-white mb-1">ALL Products</h1>
+                <p class="text-light opacity-50 fs-5"></p>
             </header>
 
             <div class="row g-4">
                 <aside class="col-lg-3">
                     <div class="filter-sidebar">
-                        <h4 class="fw-bold mb-4 text-white"><i class="bi bi-sliders2-vertical me-2" style="color: var(--neon-cyan);"></i>Filters Matrix</h4>
+                        <h4 class="fw-bold mb-4 text-white"><i class="bi bi-sliders2-vertical me-2" style="color: var(--neon-cyan);"></i>Filters</h4>
                         
                         <form action="products.php" method="GET" class="mb-4">
                             <label class="form-label opacity-75 small fw-bold text-uppercase">Search Asset</label>
@@ -331,9 +331,9 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
                         <div class="mb-4">
                             <label class="form-label opacity-75 small fw-bold text-uppercase">Category Focus</label>
                             <div class="d-flex flex-column gap-2 mt-2">
-                                <a href="products.php?category=All" class="btn btn-sm text-start <?php echo $selected_category == 'All' ? 'btn-info text-dark fw-bold' : 'text-light bg-dark bg-opacity-25'; ?>">All Infrastructure</a>
-                                <a href="products.php?category=Laptop" class="btn btn-sm text-start <?php echo $selected_category == 'Laptop' ? 'btn-info text-dark fw-bold' : 'text-light bg-dark bg-opacity-25'; ?>">Authorized Laptops</a>
-                                <a href="products.php?category=Accessory" class="btn btn-sm text-start <?php echo $selected_category == 'Accessory' ? 'btn-info text-dark fw-bold' : 'text-light bg-dark bg-opacity-25'; ?>">Official Accessories</a>
+                                <a href="products.php?category=All" class="btn btn-sm text-start <?php echo $selected_category == 'All' ? 'btn-info text-dark fw-bold' : 'text-light bg-dark bg-opacity-25'; ?>">All products</a>
+                                <a href="products.php?category=Laptop" class="btn btn-sm text-start <?php echo $selected_category == 'Laptop' ? 'btn-info text-dark fw-bold' : 'text-light bg-dark bg-opacity-25'; ?>"> Laptops</a>
+                                <a href="products.php?category=Accessory" class="btn btn-sm text-start <?php echo $selected_category == 'Accessory' ? 'btn-info text-dark fw-bold' : 'text-light bg-dark bg-opacity-25'; ?>"> Accessories</a>
                             </div>
                         </div>
                     </div>
@@ -341,7 +341,7 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
                 <main class="col-lg-9">
                     <div class="row g-4">
                         <?php
-                        // بناء استعلام البحث والتصفية
+                       
                         $query = "SELECT * FROM products WHERE 1=1";
                         
                         if ($selected_category !== 'All') {
@@ -352,10 +352,7 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
                             $query .= " AND (name LIKE '%" . $conn->real_escape_string($search_query) . "%' OR description LIKE '%" . $conn->real_escape_string($search_query) . "%' OR brand LIKE '%" . $conn->real_escape_string($search_query) . "%')";
                         }
 
-                        /* 💡 التعديل الجوهري هنا: 
-                          استخدام دالة FIELD لترتيب 'Laptop' أولاً ثم 'Accessory' تلقائياً، 
-                          ثم ترتيب الأحدث فالأقدم بناءً على الـ ID.
-                        */
+                       
                         $query .= " ORDER BY FIELD(product_type, 'Laptop', 'Accessory'), id DESC";
 
                         $db_result = $conn->query($query);
@@ -370,11 +367,23 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
                             <div class="product-cyber-card">
                                 <div>
                                     <div class="product-img-container">
-                                        <img src="assets/images/products/<?php echo $prod_img; ?>" 
-                                             alt="<?php echo htmlspecialchars($prod['name']); ?>" 
-                                             class="img-fluid product-img-inventory"
-                                             onerror="this.src='assets/images/products/default.jpg'">
-                                    </div>
+    <?php
+    // 1. مصفوفة يدوية للصور الثلاث الجديدة
+   $special_images = [
+    'Elgato Stream Deck MK.2' => 'stream_deck.png',
+    'Corsair Virtuoso RGB Wireless SE' => 'corsair_virtuoso.png',
+    'Anker Prime 20000mAh Power Bank' => 'anker_prime.png'
+];
+
+    // 2. اختيار الصورة (إذا كان المنتج موجوداً في المصفوفة نأخذ صورته، وإلا نأخذ من قاعدة البيانات)
+    $display_img = isset($special_images[$prod['name']]) ? $special_images[$prod['name']] : $prod['image_url'];
+    ?>
+
+    <img src="assets/images/products/<?php echo !empty($display_img) ? $display_img : 'default.jpg'; ?>" 
+         alt="<?php echo htmlspecialchars($prod['name']); ?>" 
+         class="img-fluid product-img-inventory"
+         onerror="this.src='assets/images/products/default.jpg'">
+</div>
                                     <div class="d-flex justify-content-between align-items-center mt-2">
                                         <span class="badge badge-cyan"><?php echo htmlspecialchars($prod['brand']); ?></span>
                                         <span class="small opacity-50" style="font-size: 0.8rem;"><?php echo htmlspecialchars($prod['product_type']); ?></span>

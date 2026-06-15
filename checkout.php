@@ -15,7 +15,6 @@ foreach ($cart_items as $item) {
     $total_amount += $item['price'] * $item['quantity'];
 }
 
-// معالجة إرسال البيانات وحفظها في قاعدة البيانات (Orders Management)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = mysqli_real_escape_string($conn, $_POST['customer_name']);
     $email = mysqli_real_escape_string($conn, $_POST['customer_email']);
@@ -23,32 +22,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $address = mysqli_real_escape_string($conn, $_POST['delivery_address']);
     $payment = mysqli_real_escape_string($conn, $_POST['payment_method']);
 
-    // 1. إدخال الطلب الرئيسي في جدول orders
     $insert_order_query = "INSERT INTO orders (customer_name, customer_email, customer_phone, delivery_address, payment_method, total_amount) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($insert_order_query);
     $stmt->bind_param("sssssd", $name, $email, $phone, $address, $payment, $total_amount);
     
     if ($stmt->execute()) {
-        $order_id = $conn->insert_id; // جلب رقم الطلب الذي تم إنشاؤه للتو
+        $order_id = $conn->insert_id; 
 
-        // 2. إدخال تفاصيل المنتجات داخل جدول order_items وتحديث المخزون
+        
         foreach ($cart_items as $product_id => $item) {
             $insert_item_query = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
             $stmt_item = $conn->prepare($insert_item_query);
             $stmt_item->bind_param("iiid", $order_id, $product_id, $item['quantity'], $item['price']);
             $stmt_item->execute();
 
-            // تحديث كميات المخزون في جدول المنتجات لتنفيذ الـ Full CRUD
+           
             $update_stock = "UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?";
             $stmt_stock = $conn->prepare($update_stock);
             $stmt_stock->bind_param("ii", $item['quantity'], $product_id);
             $stmt_stock->execute();
         }
 
-        // تفريغ السلة من الجلسة بعد نجاح العملية
+        
         unset($_SESSION['cart']);
 
-        // التوجيه لصفحة التأكيد مع تمرير رقم الطلب
         header("Location: confirmation.php?id=" . $order_id);
         exit();
     } else {
@@ -61,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Checkout Deployment | AuraTech</title>
+    <title>Checkout  | AuraTech</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -82,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             overflow-x: hidden;
         }
 
-        /* شريط التنقل الشفاف الموحد المضيء */
+       
         .custom-navbar {
             background-color: transparent !important;
             padding: 25px 0;
@@ -96,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        /* اللوحات الكريستالية الشفافة (Glassmorphism) */
+       
         .checkout-cyber-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
@@ -108,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #ffffff !important;
         }
 
-        /* تنسيق حقول الإدخال المتناسقة والمضيئة */
+        
         .form-label {
             color: #ffffff !important;
             font-size: 0.95rem;
@@ -136,13 +133,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: rgba(255, 255, 255, 0.4) !important;
         }
 
-        /* تخصيص قائمة خيارات الدفع لتظهر بشكل داكن وأنيق */
+        
         .form-select option {
             background-color: #1e1b4b !important;
             color: #ffffff !important;
         }
 
-        /* زر الإرسال المضيء الأصلي بالستايل الجديد */
+        
         .btn-cyber-submit {
             background: linear-gradient(90deg, var(--neon-cyan), #0891b2);
             color: #0b0f19 !important;
@@ -159,7 +156,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #0b0f19 !important;
         }
 
-        /* عناصر قائمة المنتجات الجانبية */
         .list-group-item {
             border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
             padding: 15px 0 !important;
@@ -171,7 +167,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 1.05rem;
         }
 
-        /* التذييل السفلي الموحد */
         .custom-footer {
             background: rgba(11, 15, 25, 0.8) !important;
             border-top: 1px solid rgba(6, 182, 212, 0.1);
@@ -188,8 +183,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <main class="container py-5">
         <header class="mb-5">
-            <h1 class="display-4 fw-bold text-white mb-1"><i class="bi bi-shield-check me-3" style="color: var(--neon-cyan);"></i>Secure Checkout Deployment</h1>
-            <p class="text-light opacity-50 fs-5" style="color: #ffffff !important; opacity: 0.7 !important;">Finalize secure enterprise asset acquisition protocols.</p>
+            <h1 class="display-4 fw-bold text-white mb-1"><i class="bi bi-shield-check me-3" style="color: var(--neon-cyan);"></i>Checkout </h1>
+            <p class="text-light opacity-50 fs-5" style="color: #ffffff !important; opacity: 0.7 !important;"></p>
         </header>
 
         <div class="row g-4">
@@ -203,11 +198,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <form action="checkout.php" method="POST">
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Full Name</label>
+                            <label class="form-label fw-bold"> Name</label>
                             <input type="text" name="customer_name" class="form-control" placeholder="John Doe" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Email Address</label>
+                            <label class="form-label fw-bold">Email </label>
                             <input type="email" name="customer_email" class="form-control" placeholder="john@unilak.ac.rw" required>
                         </div>
                         <div class="mb-3">
@@ -219,21 +214,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <textarea name="delivery_address" class="form-control" rows="3" placeholder="KK 21 Ave, Kigali, Rwanda" required></textarea>
                         </div>
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Integrated Payment Gateway (Bonus Feature)</label>
+                            <label class="form-label fw-bold">choose payment method</label>
                             <select name="payment_method" class="form-select fw-bold text-white">
                                 <option value="Mobile Money">MTN Mobile Money (MoMo Rwanda)</option>
                                 <option value="Airtel Money">Airtel Money</option>
-                                <option value="Cash on Delivery">Direct Agency Logistics Handover</option>
+                                <option value="Cash on Delivery">Cash on delivery</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-cyber-submit w-100 py-3 fw-bold fs-5 shadow">Authorize and Confirm Payment</button>
+                        <button type="submit" class="btn btn-cyber-submit w-100 py-3 fw-bold fs-5 shadow">Confirm Payment</button>
                     </form>
                 </div>
             </div>
 
             <div class="col-md-5">
                 <div class="card checkout-cyber-card border-0" style="background: rgba(255, 255, 255, 0.03);">
-                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-receipt me-2" style="color: var(--neon-cyan);"></i>Order Structural Summary</h5>
+                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-receipt me-2" style="color: var(--neon-cyan);"></i>Order details</h5>
                     <ul class="list-group list-group-flush mb-3 bg-transparent">
                         <?php foreach($cart_items as $item): ?>
                             <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center small">

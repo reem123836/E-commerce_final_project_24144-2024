@@ -22,7 +22,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 $order = $result->fetch_assoc();
 
-// If order not found
+
 if (!$order) {
     header("Location: index.php");
     exit();

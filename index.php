@@ -19,7 +19,7 @@ session_start();
             --text-light: #f8fafc;
         }
 
-        /* Continuous gradient flow across the entire viewport execution plane */
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(180deg, var(--cyber-bg-top) 0%, var(--cyber-bg-bottom) 50%, #0f172a 100%);
@@ -28,7 +28,7 @@ session_start();
             background-attachment: fixed;
         }
 
-        /* Your exact original floating transparent navbar structure */
+      
         .custom-navbar {
             background-color: transparent !important;
             padding: 25px 0;
@@ -55,7 +55,7 @@ session_start();
             transform: translateY(-1px);
         }
 
-        /* Hero Section illumination parameters */
+        
         .luxury-hero {
             padding: 120px 0 60px 0;
             text-align: center;
@@ -94,7 +94,6 @@ session_start();
             box-shadow: 0 0 25px rgba(124, 58, 237, 0.6);
         }
 
-        /* Glass morphism engineering plates spanning full layout metrics */
         .glass-rectangle {
             background: rgba(255, 255, 255, 0.02);
             backdrop-filter: blur(15px);
@@ -151,12 +150,12 @@ session_start();
                     <a class="nav-item nav-link" href="contact.php">Contact Us</a>
                     
                     <?php if (isset($_SESSION['user_id'])): ?>
-                        <!-- Luminous active profile trace returning straight to core terminal gate -->
+                        
                         <a class="nav-item nav-link" href="auth.php" title="Manage Portal" style="color: var(--neon-cyan) !important; text-shadow: 0 0 10px rgba(6, 182, 212, 0.6);">
                             Login
                         </a>
                     <?php else: ?>
-                        <!-- Standalone plaintext portal navigation parameter -->
+                       
                         <a class="nav-item nav-link" href="auth.php" title="Portal Login">
                             Login
                         </a>
