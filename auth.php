@@ -13,6 +13,21 @@ if (!isset($conn)) {
     die("Architectural Error: Database connection variable (\$conn) not found in config.");
 }
 
+// 0. Handle Logout Request (Terminate Workspace Session)
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    $_SESSION = array();
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
+    session_destroy();
+    header("Location: auth.php");
+    exit();
+}
+
 $error = "";
 $success = "";
 
@@ -51,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
     }
 }
 
-// 2. Handle Login Request (Authorize Access)
+// 2. Handle Login Request (Authorize Access with Dynamic Routing)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     $user_name = trim($_POST['username'] ?? '');
     $pass = $_POST['password'] ?? '';
@@ -72,7 +87,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['role'] = $user['role'] ?? 'admin';
 
-                header("Location: index.php");
+                // Core adjustment: Dynamic workspace routing sequence
+                if ($_SESSION['role'] === 'admin') {
+                    header("Location: admin_dashboard.php");
+                } else {
+                    header("Location: index.php");
+                }
                 exit();
             } else {
                 $error = "Invalid credential parameters or access denied.";
