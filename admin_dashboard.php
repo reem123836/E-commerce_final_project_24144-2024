@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-// 1. Security Gate: Only allow logged-in administrators
+// Security Gate: Only allow logged-in administrators
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     header("Location: auth.php");
     exit();
@@ -17,13 +17,13 @@ require_once 'config.php';
 $message = "";
 $message_class = "";
 
-// 2. CRUD Operations Engine (Customized for AuraTech Database Schema)
+// CRUD Engine Operations
 
-// Create (Insert New Hardware / Accessory Node)
+// 1. Create (Insert Product Node)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_product'])) {
     $name = trim($_POST['name']);
     $brand = trim($_POST['brand']);
-    $product_type = $_POST['product_type']; // 'Laptop' or 'Accessory'
+    $product_type = $_POST['product_type'];
     $description = trim($_POST['description']);
     $price = floatval($_POST['price']);
     $stock_quantity = intval($_POST['stock_quantity']);
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_product'])) {
     }
 }
 
-// Update (Edit Existing Product Specification)
+// 2. Update (Edit Asset Node)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_product'])) {
     $id = intval($_POST['product_id']);
     $name = trim($_POST['name']);
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_product'])) {
     }
 }
 
-// Delete (Remove Hardware Node)
+// 3. Delete (Terminate Product Node)
 if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']);
     try {
@@ -93,7 +93,7 @@ if (isset($_GET['delete'])) {
     }
 }
 
-// Read (Fetch all active infrastructure products)
+// 4. Read (Fetch pipeline dataset)
 $products = [];
 try {
     $result = $conn->query("SELECT * FROM products ORDER BY id DESC");
@@ -220,7 +220,6 @@ try {
 </head>
 <body>
 
-<!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark navbar-auratech">
     <div class="container">
         <a class="navbar-brand brand-title" href="#">AURATECH SYSTEM CONTROL</a>
@@ -239,7 +238,6 @@ try {
             <div class="alert <?php echo $message_class; ?> text-center mb-4"><?php echo htmlspecialchars($message); ?></div>
         <?php endif; ?>
 
-        <!-- Create Form Block -->
         <div class="card card-body bg-transparent border-0 p-0 mb-5">
             <h4 class="mb-3 text-start" style="color: var(--neon-cyan);"><i class="bi bi-plus-circle me-2"></i>Inject Hardware Node</h4>
             <form action="admin_dashboard.php" method="POST">
@@ -284,7 +282,6 @@ try {
 
         <hr style="border-color: var(--border-glass);" class="my-5">
 
-        <!-- Read and Management Data Matrix -->
         <h4 class="mb-3 text-start" style="color: var(--neon-cyan);"><i class="bi bi-hdd-network me-2"></i>Active Pipeline Grid</h4>
         <div class="table-responsive">
             <table class="table table-auratech">
@@ -297,7 +294,7 @@ try {
                         <th>Stock Allocation</th>
                         <th>Execution Sequence</th>
                     </tr>
-                </thead>
+         </thead>
                 <tbody>
                     <?php if (empty($products)): ?>
                         <tr>
@@ -334,7 +331,6 @@ try {
     </div>
 </div>
 
-<!-- Edit Node Modal Setup -->
 <div class="modal fade" id="editModal" static tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(10px);">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background: #11151f; border: 1px solid var(--neon-cyan); border-radius: 14px; color: var(--text-light);">
@@ -357,7 +353,7 @@ try {
                         <label class="form-label">Product Allocation Type</label>
                         <select name="product_type" id="edit_product_type" class="form-select form-select-auratech" required>
                             <option value="Laptop">Laptop</option>
-                            <option value="Accessory">Accessory</option>
+              <option value="Accessory">Accessory</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -403,4 +399,4 @@ try {
     }
 </script>
 </body>
-</html>
+</html>                         
