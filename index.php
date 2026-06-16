@@ -1,5 +1,5 @@
 <?php
-// 1. Session initialization at the absolute top
+// test update
 session_start();
 ?>
 <!DOCTYPE html>

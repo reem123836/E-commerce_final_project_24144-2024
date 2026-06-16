@@ -212,7 +212,7 @@ try {
 
 <div class="container">
     <div class="dashboard-container">
-        <h2 class="mb-4 text-center" style="font-weight: 700;">Product Management</h2>
+        <h2 class="mb-4 text-center" style="font-weight: 700;">Product  Management</h2>
 
         <?php if (!empty($message)): ?>
             <div class="alert <?php echo $message_class; ?> text-center mb-4"><?php echo htmlspecialchars($message); ?></div>
