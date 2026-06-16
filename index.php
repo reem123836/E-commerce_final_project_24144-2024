@@ -148,13 +148,12 @@ session_start();
                     <a class="nav-item nav-link" href="about.php">About Us</a>
                     <a class="nav-item nav-link" href="contact.php">Contact Us</a>
                     
-                    <?php if (isset($_SESSION['user_id'])): ?>
-    <!-- خيار تسجيل الخروج يظهر فقط عند دخول المستخدم -->
-    <a class="nav-item nav-link" href="logout.php">Logout</a>
-    <a class="nav-item nav-link" href="auth.php" title="Manage Portal">Manage Portal</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+   
+    <a class="nav-item nav-link text-danger fw-bold" href="logout.php">Logout</a>
 <?php else: ?>
-    <!-- خيار تسجيل الدخول يظهر فقط للزوار -->
-    <a class="nav-item nav-link" href="auth.php" title="Portal Login">Login</a>
+   
+    <a class="nav-item nav-link" href="auth.php">Login</a>
 <?php endif; ?>
                 </div>
             </div>
