@@ -144,22 +144,18 @@ session_start();
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav ms-auto fs-5 gap-4 align-items-center">
                     <a class="nav-item nav-link active" href="index.php">Home</a>
-                    <!-- Combined Laptops and Accessories into raw Inventory root node link -->
                     <a class="nav-item nav-link" href="products.php">Inventory</a>
                     <a class="nav-item nav-link" href="about.php">About Us</a>
                     <a class="nav-item nav-link" href="contact.php">Contact Us</a>
                     
                     <?php if (isset($_SESSION['user_id'])): ?>
-                        
-                        <a class="nav-item nav-link" href="auth.php" title="Manage Portal" style="color: var(--neon-cyan) !important; text-shadow: 0 0 10px rgba(6, 182, 212, 0.6);">
-                            Login
-                        </a>
-                    <?php else: ?>
-                       
-                        <a class="nav-item nav-link" href="auth.php" title="Portal Login">
-                            Login
-                        </a>
-                    <?php endif; ?>
+    <!-- خيار تسجيل الخروج يظهر فقط عند دخول المستخدم -->
+    <a class="nav-item nav-link" href="logout.php">Logout</a>
+    <a class="nav-item nav-link" href="auth.php" title="Manage Portal">Manage Portal</a>
+<?php else: ?>
+    <!-- خيار تسجيل الدخول يظهر فقط للزوار -->
+    <a class="nav-item nav-link" href="auth.php" title="Portal Login">Login</a>
+<?php endif; ?>
                 </div>
             </div>
         </div>
