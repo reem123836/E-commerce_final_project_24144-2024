@@ -214,6 +214,8 @@ try {
         <a class="navbar-brand brand-title" href="#">AURATECH CONTROL</a>
         <div class="d-flex align-items-center">
             <a href="index.php" class="btn btn-outline-info btn-sm">View Store</a>
+             <a href="logout.php" class="btn btn-outline-info btn-sm">Logout</a>
+        
         </div>
     </div>
 </nav>
