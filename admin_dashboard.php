@@ -2,8 +2,17 @@
 // admin_dashboard.php
 
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    session_start();}
+
+    if (isset($_SESSION['message'])) {
+    $message = $_SESSION['message'];
+    $message_class = $_SESSION['message_class'];
+    // مسح الرسالة بعد قراءتها لكي لا تظهر مرة أخرى عند تحديث الصفحة
+    unset($_SESSION['message']);
+    unset($_SESSION['message_class']);
+
 }
+
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 // Security Gate: Only allow logged-in administrators
@@ -44,27 +53,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_product'])) {
         $message_class = "alert-danger";
     }
 }
-
 // 2. Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_product'])) {
     $id = intval($_POST['product_id'] ?? 0);
     $name = trim($_POST['name'] ?? '');
     $brand = trim($_POST['brand'] ?? '');
-    $product_type = $_POST['product_type'] ?? '';
     $description = trim($_POST['description'] ?? '');
     $price = floatval($_POST['price'] ?? 0);
     $stock_quantity = intval($_POST['stock_quantity'] ?? 0);
-    $image_url = trim($_POST['image_url'] ?? '');
-
-    if (empty($image_url)) {
-        $image_url = 'default.jpg';
-    }
 
     try {
-        $stmt = $conn->prepare("UPDATE products SET name = ?, brand = ?, product_type = ?, description = ?, price = ?, stock_quantity = ?, image_url = ? WHERE id = ?");
-        $stmt->bind_param("ssssdisi", $name, $brand, $product_type, $description, $price, $stock_quantity, $image_url, $id);
+   
+        $stmt = $conn->prepare("UPDATE products SET name = ?, brand = ?, description = ?, price = ?, stock_quantity = ? WHERE id = ?");
+        
+        // s = name, s = brand, s = description, d = price, i = stock_quantity, i = id
+        $stmt->bind_param("sssdii", $name, $brand, $description, $price, $stock_quantity, $id);
+       $message = ""; 
+       $message_class = "";
         if ($stmt->execute()) {
             $stmt->close();
+             $_SESSION['message'] = "Product updated successfully!";
+            $_SESSION['message_class'] = "alert-success";
             header("Location: admin_dashboard.php");
             exit();
         }
@@ -73,7 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_product'])) {
         $message_class = "alert-danger";
     }
 }
-
 // 3. Delete
 if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']);
@@ -212,8 +220,13 @@ try {
 
 <div class="container">
     <div class="dashboard-container">
-        <h2 class="mb-4 text-center" style="font-weight: 700;">Product  Management</h2>
-
+         <?php if (!empty($message)): ?>
+            <div class="alert <?php echo $message_class; ?> text-center mb-4">
+                <?php echo htmlspecialchars($message); ?>
+            </div>
+        <?php endif; ?>
+        <h2 class="mb-4 text-center" style="font-weight: 700;">Product Management</h2>
+       
         <?php if (!empty($message)): ?>
             <div class="alert <?php echo $message_class; ?> text-center mb-4"><?php echo htmlspecialchars($message); ?></div>
         <?php endif; ?>
@@ -344,3 +357,4 @@ try {
 </script>
 </body>
 </html>
+
