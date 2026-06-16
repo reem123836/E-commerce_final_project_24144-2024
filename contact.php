@@ -147,11 +147,11 @@
                 <form action="#" method="POST">
                     <div class="row g-4">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold opacity-75">Name</label>
+                            <label class="form-label fw-semibold opacity-75"> Name</label>
                             <input type="text" class="form-control cyber-input" placeholder="Enter your name" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold opacity-75">Email /label>
+                            <label class="form-label fw-semibold opacity-75">Email Address</label>
                             <input type="email" class="form-control cyber-input" placeholder="name@company.com" required>
                         </div>
                         <div class="col-12">
@@ -171,6 +171,7 @@
 
             <hr class="bg-light opacity-25 my-4">
 
+        
             <div class="col-12 mt-3">
                 <div class="row g-4 text-center text-md-start">
                     <div class="col-md-4">
@@ -201,7 +202,6 @@
         <p class="mb-0 text-light opacity-50">&copy; 2026 AuraTech Agency. Designed by Reem Osama.</p>
     </footer>
 
-    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

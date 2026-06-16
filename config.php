@@ -1,11 +1,11 @@
 <?php
-// إعدادات الاتصال الإلزامية لحاوية الدوكر
-$host = 'db'; 
-$user = 'root';
-$password = 'root';
-$dbname = 'laptop_agency_db'; 
 
-// تفعيل نظام الأخطاء لمعرفة السبب لو حدث تعليق
+$host = 'sql102.infinityfree.comdb'; 
+$user = 'if0_42174531';
+$password = 'reemosama123';
+$dbname = 'if0_42174531_laptop_agency_db'; 
+
+
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 try {
