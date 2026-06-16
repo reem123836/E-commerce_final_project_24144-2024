@@ -1,7 +1,6 @@
 <?php
 require_once "config.php";
 
-// بدء الجلسة إذا لم تكن بدأت بعد لجلب منتجات السلة
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -14,7 +13,7 @@ $subtotal = 0;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart Matrix | AuraTech Agency</title>
+    <title>Shopping Cart  | AuraTech Agency</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -35,7 +34,6 @@ $subtotal = 0;
             overflow-x: hidden;
         }
 
-        /* شريط التنقل الشفاف الموحد */
         .custom-navbar {
             background-color: transparent !important;
             padding: 25px 0;
@@ -61,7 +59,6 @@ $subtotal = 0;
             text-shadow: 0 0 10px rgba(6, 182, 212, 0.6);
         }
 
-        /* اللوحات الكريستالية الشفافة (Glassmorphism) */
         .cart-cyber-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
@@ -72,7 +69,6 @@ $subtotal = 0;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
         }
 
-        /* ستايل جدول المنتجات وتبييض كل النصوص */
         .cyber-table {
             color: #ffffff !important;
             vertical-align: middle;
@@ -96,14 +92,12 @@ $subtotal = 0;
             color: #ffffff !important;
         }
 
-        /* 📐 العرض الموسع الكبير لقسم المواصفات والصور لمنع الزحام */
         .col-specs { width: 55%; }
         .col-price { width: 12%; }
         .col-qty   { width: 13%; }
         .col-total { width: 12%; }
         .col-action{ width: 8%; }
 
-        /* 📸 أبعاد ممتازة وواضحة جداً للصورة */
         .cart-img-container {
             background: rgba(11, 15, 25, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -123,7 +117,6 @@ $subtotal = 0;
             filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.2));
         }
 
-        /* الالتفاف التلقائي للنصوص المانع للتداخل البصري */
         .product-details-box {
             display: flex;
             flex-direction: column;
@@ -147,7 +140,6 @@ $subtotal = 0;
             opacity: 0.8;
         }
 
-        /* مدخلات التحكم بالكمية */
         .cyber-qty-input {
             background: rgba(255, 255, 255, 0.08) !important;
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -157,7 +149,6 @@ $subtotal = 0;
             width: 75px;
         }
 
-        /* أزرار الإجراءات والمتابعة */
         .btn-cyber-action {
             font-weight: 600;
             border-radius: 8px;
@@ -235,17 +226,17 @@ $subtotal = 0;
     </nav>
     <div class="container my-5">
         <header class="mb-5">
-            <h1 class="display-4 fw-bold text-white mb-1"><i class="bi bi-cart3 me-3" style="color: var(--neon-cyan);"></i>Shopping Cart Matrix</h1>
-            <p class="text-light opacity-50 fs-5" style="color: #ffffff !important; opacity: 0.7 !important;">Review committed hardware units before compiling order execution.</p>
+            <h1 class="display-4 fw-bold text-white mb-1"><i class="bi bi-cart3 me-3" style="color: var(--neon-cyan);"></i>Shopping Cart </h1>
+            <p class="text-light opacity-50 fs-5" style="color: #ffffff !important; opacity: 0.7 !important;"></p>
         </header>
 
         <?php if (empty($cart_items)): ?>
             <div class="cart-cyber-card text-center py-5">
                 <i class="bi bi-basket3 fs-1 opacity-25 d-block mb-3" style="color: var(--neon-cyan);"></i>
-                <h3 class="fw-bold mb-3 text-white">Your Cart Matrix is Empty</h3>
-                <p class="text-white opacity-75 mb-4">No enterprise deployment assets have been allocated yet.</p>
+                <h3 class="fw-bold mb-3 text-white">Your Cart  is Empty</h3>
+                <p class="text-white opacity-75 mb-4">No products have been selected yet.</p>
                 <a href="products.php" class="btn btn-cyber-action btn-neon-cyan px-4 py-2">
-                    <i class="bi bi-arrow-left me-2"></i>Return to Hardware Inventory
+                    <i class="bi bi-arrow-left me-2"></i>Return to  Inventory
                 </a>
             </div>
         <?php else: ?>
@@ -268,7 +259,7 @@ $subtotal = 0;
                                     $total_item_price = $item['price'] * $item['quantity'];
                                     $subtotal += $total_item_price;
                                     
-                                    // 🔍 كود استخراج اسم ملف الصورة المعتمد
+                                    
                                     $img_file = 'default.jpg';
                                     if (!empty($item['image_url'])) {
                                         $img_file = $item['image_url'];
@@ -334,22 +325,22 @@ $subtotal = 0;
                     
                     <div class="mt-4">
                         <a href="products.php" class="btn btn-cyber-action btn-outline-cyber px-4 py-2">
-                            <i class="bi bi-arrow-left me-2"></i>Continue Allocating Assets
+                            <i class="bi bi-arrow-left me-2"></i>Continue shopping
                         </a>
                     </div>
                 </div>
 
                 <div class="col-lg-4">
                     <div class="cart-cyber-card">
-                        <h4 class="fw-bold mb-4 pb-2 border-bottom border-secondary border-opacity-25 text-white">Execution Summary</h4>
+                        <h4 class="fw-bold mb-4 pb-2 border-bottom border-secondary border-opacity-25 text-white">Order details</h4>
                         
                         <div class="summary-row">
-                            <span>Allocated Units Subtotal:</span>
+                            <span> Subtotal:</span>
                             <span>$<?php echo number_format($subtotal, 2); ?></span>
                         </div>
                         <div class="summary-row">
                             <span>Secured Delivery Protocol:</span>
-                            <span class="text-success fw-bold">FREE Logistics</span>
+                            <span class="text-success fw-bold">shipping on us</span>
                         </div>
                         
                         <hr class="border-secondary border-opacity-50 my-4">
