@@ -5,7 +5,7 @@
 - **Name:** Reem Osama
 - **Reg:** 24144-2024
 - **Course:** E-commerce and Web Application 
-- **Project Title:** AuraTech Management System
+- **Project Title:** AuraTech Agency
 
 
 ## Project Overview
@@ -232,8 +232,7 @@ The home page introduces AuraTech Management System.
 
 Displays all products and inventory information.
 
-![Inventory](assets/images/products/eproduct.png)
-
+![Inventory](assets/images/products/pa2.png)
 
 
 ### Figure 3: Cart
@@ -243,7 +242,30 @@ Customer can view the cart.
 ![Cart](assets/images/products/cart.png)
 
 
-### Figure 4: Administrators Dashboard
+### Figure 4: Contact us
+
+Customers can easily reach out to our support team or send inquiries through this dedicated contact form.
+
+![Contact us](assets/images/products/contact.png)
+
+
+### Figure 5: About us
+
+This page provides comprehensive information about our company, mission, and the administrators managing the platform.
+
+![About us](assets/images/products/about.png)
+
+
+
+### Figure 6: Checkout
+
+This page allows customers to review their selected products, calculate the total cost, and finalize their order securely. It provides a seamless transition from cart to order completion.
+
+![Checkout page](assets/images/products/check.png)
+
+
+
+### Figure 7: Administrators Dashboard
 
 Administrators can update product information.
 
