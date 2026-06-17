@@ -102,33 +102,74 @@ Displays success and error messages after operations.
 
 ## System Architecture
 
-The system follows a Client-Server Architecture.
+```mermaid
+flowchart TB
 
-### Client Layer
+    Administrator["Administrator"]
+    Customer["Customer"]
 
-Users interact with the system through a web browser.
+    HomePage["Home Page"]
 
-### Application Layer
+    ProductsPage["Products Page"]
 
-PHP handles:
+    ShoppingCart["Shopping Cart"]
 
-- Business logic
-- Form validation
-- CRUD operations
-- Database communication
+    CheckoutPage["Checkout Page"]
 
-### Database Layer
+    ConfirmationPage["Order Confirmation Page"]
 
-MySQL stores:
+    AdminDashboard["Admin Dashboard"]
 
-- Product information
-- Inventory data
-- Product images
-- Product descriptions
+    PHPApplication["PHP Web Application"]
 
-### Deployment Layer
+    MySQLDatabase[("MySQL Database")]
 
-GitHub Actions automatically deploys updates to InfinityFree using FTP.
+    LocalDevelopment["Local Development Environment"]
+
+    DockerEnvironment["Docker Development Environment"]
+
+    GitVersionControl["Git Version Control"]
+
+    GitHubRepository["GitHub Repository"]
+
+    GitHubActions["GitHub Actions (CI/CD Pipeline)"]
+
+    FTPDeployment["FTP Deployment"]
+
+    InfinityFreeHosting["InfinityFree Hosting"]
+
+    LiveWebsite["Live Website"]
+
+    Customer --> HomePage
+    HomePage --> ProductsPage
+    ProductsPage --> ShoppingCart
+    ShoppingCart --> CheckoutPage
+    CheckoutPage --> ConfirmationPage
+
+    Administrator --> AdminDashboard
+
+    ProductsPage --> PHPApplication
+    ShoppingCart --> PHPApplication
+    CheckoutPage --> PHPApplication
+    ConfirmationPage --> PHPApplication
+    AdminDashboard --> PHPApplication
+
+    PHPApplication --> MySQLDatabase
+
+    LocalDevelopment --> DockerEnvironment
+    DockerEnvironment --> GitVersionControl
+    GitVersionControl --> GitHubRepository
+    GitHubRepository --> GitHubActions
+    GitHubActions --> FTPDeployment
+    FTPDeployment --> InfinityFreeHosting
+    InfinityFreeHosting --> LiveWebsite
+```
+
+### Architecture Description
+
+The system allows administrators to access the application through a web browser. The browser communicates with the PHP web application, which handles product management, inventory management, and user management functionalities. All application data is stored and retrieved from the MySQL database.
+
+During development, the project was built and tested locally using Docker. Source code was managed using Git and stored in a GitHub repository. Whenever changes were pushed to GitHub, GitHub Actions automatically triggered the CI/CD pipeline. The updated files were then deployed to the InfinityFree hosting server through FTP deployment, making the latest version available on the live website.
 
 
 # Development Process
