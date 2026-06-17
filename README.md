@@ -1,6 +1,6 @@
 # AuraTech Agency
 
-## Student Information
+
 
 - **Name:** Reem Osama
 - **Reg:** 24144-2024
